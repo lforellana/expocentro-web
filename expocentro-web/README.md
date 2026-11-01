@@ -61,7 +61,8 @@ La plataforma busca mejorar tanto la experiencia del visitante como la organizac
 
 ### Producción
 
-**URL:** Pendiente de publicación.
+**URL:** expocentro-web-dev-evbzhaerggg7h2g4.canadacentral-01.azurewebsites.net
+
 
 
 ---
