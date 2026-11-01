@@ -1,50 +1,133 @@
 ﻿@{
-    ViewData["Title"] = "Expocentro";
+    ViewData["Title"] = "Inicio";
 }
 
-<section class="py-5">
-    <span class="badge bg-primary mb-3">Expocentro · CCIC</span>
+<section class="hero-expocentro">
 
-    <h1 class="display-4 fw-bold">
-        Un espacio para tu próximo evento
-    </h1>
+    <div class="hero-overlay"></div>
 
-    <p class="lead">
-        Conoce las instalaciones para eventos y convenciones
-        de la Cámara de Comercio e Industrias de Cortés.
-    </p>
+    <div class="container hero-content">
 
-    <a href="#espacios" class="btn btn-primary btn-lg">
-        Explorar espacios
-    </a>
+        <div class="row">
+            <div class="col-lg-8">
+
+                <span class="badge bg-light text-dark mb-3">
+                    Expocentro · CCIC
+                </span>
+
+                <h1 class="display-3 fw-bold text-white">
+                    El espacio para grandes ideas
+                </h1>
+
+                <p class="lead text-white mb-4">
+                    Espacios para convenciones, reuniones,
+                    exposiciones y eventos en San Pedro Sula.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3">
+
+                    <a asp-controller="Home"
+                       asp-action="Espacios"
+                       class="btn btn-light btn-lg">
+                        Explorar espacios
+                    </a>
+
+                    <a asp-controller="Cotizacion"
+                       asp-action="Index"
+                       class="btn btn-outline-light btn-lg">
+                        Solicitar cotización
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
 </section>
 
-<section id="espacios" class="pb-5">
-    <h2 class="mb-4">Nuestros espacios</h2>
+
+<section class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <h2 class="fw-bold">
+            Espacios para cada ocasión
+        </h2>
+
+        <p class="text-muted">
+            Conoce las diferentes opciones que Expocentro
+            ofrece para realizar tu próximo evento.
+        </p>
+
+    </div>
 
     <div class="row g-4">
-        <div class="col-md-6">
-            <article class="card h-100">
+
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm border-0">
+
                 <div class="card-body">
-                    <h3 class="h4">Salones para eventos</h3>
-                    <p class="mb-0">
-                        Espacios para reuniones, convenciones
-                        y actividades empresariales.
+
+                    <h3 class="h4">
+                        Eventos empresariales
+                    </h3>
+
+                    <p class="text-muted">
+                        Espacios preparados para reuniones,
+                        conferencias y actividades corporativas.
                     </p>
+
                 </div>
-            </article>
+
+            </div>
+
         </div>
 
-        <div class="col-md-6">
-            <article class="card h-100">
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm border-0">
+
                 <div class="card-body">
-                    <h3 class="h4">Áreas al aire libre</h3>
-                    <p class="mb-0">
-                        Áreas para diferentes formatos
-                        de actividades y encuentros.
+
+                    <h3 class="h4">
+                        Convenciones
+                    </h3>
+
+                    <p class="text-muted">
+                        Espacios adaptables para congresos,
+                        convenciones y encuentros profesionales.
                     </p>
+
                 </div>
-            </article>
+
+            </div>
+
         </div>
+
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h3 class="h4">
+                        Exposiciones
+                    </h3>
+
+                    <p class="text-muted">
+                        Áreas para ferias, exposiciones
+                        y diferentes tipos de actividades.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
 </section>
