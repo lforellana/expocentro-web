@@ -1,0 +1,159 @@
+@{
+    ViewData["Title"] = "Solicitar cotización";
+}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="text-center mb-5">
+
+                <h1 class="display-5 fw-bold">
+                    Solicitar cotización
+                </h1>
+
+                <p class="lead text-muted">
+                    Cuéntanos las características de tu evento
+                    y nuestro equipo podrá brindarte información.
+                </p>
+
+            </div>
+
+            <form>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Nombre
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            required />
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Empresa u organización
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control" />
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Correo electrónico
+                        </label>
+
+                        <input
+                            type="email"
+                            class="form-control"
+                            required />
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Teléfono
+                        </label>
+
+                        <input
+                            type="tel"
+                            class="form-control"
+                            required />
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Fecha del evento
+                        </label>
+
+                        <input
+                            type="date"
+                            class="form-control" />
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Número aproximado de asistentes
+                        </label>
+
+                        <input
+                            type="number"
+                            min="1"
+                            class="form-control" />
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Tipo de evento
+                        </label>
+
+                        <select class="form-select">
+
+                            <option value="">
+                                Seleccione una opción
+                            </option>
+
+                            <option>Congreso</option>
+                            <option>Capacitación</option>
+                            <option>Conferencia</option>
+                            <option>Exposición</option>
+                            <option>Evento empresarial</option>
+                            <option>Otro</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Información adicional
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            rows="5"></textarea>
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-lg">
+
+                            Enviar solicitud
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
