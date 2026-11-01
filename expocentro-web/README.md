@@ -65,6 +65,10 @@ La plataforma busca mejorar tanto la experiencia del visitante como la organizac
 
 
 
+**Token de propiedad:** 
+
+LEARN-CAP-56CA9155
+
 ---
 
 ## Stack tecnológico
