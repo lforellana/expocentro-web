@@ -40,6 +40,32 @@ namespace Expocentro.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departamentos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activo = true,
+                            Nombre = "IT"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Activo = true,
+                            Nombre = "Administración"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activo = true,
+                            Nombre = "Desarrollo Empresarial"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Activo = true,
+                            Nombre = "Capacitaciones"
+                        });
                 });
 
             modelBuilder.Entity("Expocentro.Web.Models.EstadoSolicitud", b =>
@@ -63,6 +89,40 @@ namespace Expocentro.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EstadosSolicitud");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activo = true,
+                            Descripcion = "Solicitud todavía no enviada.",
+                            Nombre = "Borrador"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Activo = true,
+                            Descripcion = "Solicitud enviada para revisión.",
+                            Nombre = "Enviada"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activo = true,
+                            Nombre = "En revisión"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Activo = true,
+                            Nombre = "Aprobada"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Activo = true,
+                            Nombre = "Rechazada"
+                        });
                 });
 
             modelBuilder.Entity("Expocentro.Web.Models.Salon", b =>
@@ -89,6 +149,24 @@ namespace Expocentro.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Salones");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activo = true,
+                            CapacidadMaxima = 500,
+                            Descripcion = "Salón para eventos y actividades institucionales.",
+                            Nombre = "Centro de Convenciones Felipe Arguello"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Activo = true,
+                            CapacidadMaxima = 150,
+                            Descripcion = "Espacio para reuniones y eventos.",
+                            Nombre = "Los Zorzales"
+                        });
                 });
 
             modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
@@ -145,6 +223,9 @@ namespace Expocentro.Web.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Codigo")
+                        .IsUnique();
+
                     b.HasIndex("DepartamentoCargoId");
 
                     b.HasIndex("EstadoId");
@@ -189,9 +270,23 @@ namespace Expocentro.Web.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Correo")
+                        .IsUnique();
+
                     b.HasIndex("DepartamentoId");
 
                     b.ToTable("Usuarios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activo = true,
+                            Correo = "usuario.demo@ccichonduras.org",
+                            DepartamentoId = 1,
+                            Nombre = "Usuario Demo",
+                            Rol = "Solicitante"
+                        });
                 });
 
             modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
@@ -210,7 +305,8 @@ namespace Expocentro.Web.Migrations
 
                     b.HasOne("Expocentro.Web.Models.Usuario", "ResponsableUsuario")
                         .WithMany()
-                        .HasForeignKey("ResponsableUsuarioId");
+                        .HasForeignKey("ResponsableUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Expocentro.Web.Models.Salon", "Salon")
                         .WithMany()
@@ -221,7 +317,7 @@ namespace Expocentro.Web.Migrations
                     b.HasOne("Expocentro.Web.Models.Usuario", "SolicitanteUsuario")
                         .WithMany()
                         .HasForeignKey("SolicitanteUsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("DepartamentoCargo");
