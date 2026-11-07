@@ -1,0 +1,1 @@
+Todas las acciones de tus historias contra todos tus roles, marcando las reglas de propiedad del dato.
