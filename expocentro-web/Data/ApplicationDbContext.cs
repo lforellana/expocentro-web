@@ -21,6 +21,16 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+    // Fechas y horas locales del evento
+    modelBuilder.Entity<SolicitudEvento>()
+        .Property(x => x.FechaHoraInicio)
+        .HasColumnType("timestamp without time zone");
+
+    modelBuilder.Entity<SolicitudEvento>()
+        .Property(x => x.FechaHoraFin)
+        .HasColumnType("timestamp without time zone");
+
+
         // Relaciones
         modelBuilder.Entity<SolicitudEvento>()
             .HasOne(x => x.SolicitanteUsuario)

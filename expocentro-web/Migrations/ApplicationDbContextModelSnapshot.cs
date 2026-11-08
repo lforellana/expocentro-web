@@ -200,10 +200,10 @@ namespace Expocentro.Web.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("FechaHoraFin")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("FechaHoraInicio")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("NombreEvento")
                         .IsRequired()
