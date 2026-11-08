@@ -1,133 +1,292 @@
-﻿@{
+﻿@model Expocentro.Web.ViewModels.HomeDashboardViewModel
+
+@{
     ViewData["Title"] = "Inicio";
 }
 
-<section class="hero-expocentro">
+<div class="container py-4">
 
-    <div class="hero-overlay"></div>
+    <!-- BANNER PRINCIPAL -->
 
-    <div class="container hero-content">
+    <section class="dashboard-hero mb-4">
 
-        <div class="row">
-            <div class="col-lg-8">
+        <div class="dashboard-hero-overlay"></div>
 
-                <span class="badge bg-light text-dark mb-3">
-                    Expocentro · CCIC
-                </span>
+        <div class="dashboard-hero-content">
 
-                <h1 class="display-3 fw-bold text-white">
-                    El espacio para grandes ideas
-                </h1>
+            <span class="badge bg-light text-dark mb-3">
+                Expocentro · CCIC
+            </span>
 
-                <p class="lead text-white mb-4">
-                    Espacios para convenciones, reuniones,
-                    exposiciones y eventos en San Pedro Sula.
+            <h1 class="fw-bold text-white mb-2">
+                Gestión de eventos internos
+            </h1>
+
+            <p class="text-white mb-1 fs-5">
+                Bienvenido, @Model.NombreUsuario
+            </p>
+
+            <p class="text-white-50 mb-4">
+                Registra y da seguimiento a tus solicitudes
+                de eventos internos.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <a asp-controller="Solicitudes"
+                   asp-action="Create"
+                   class="btn btn-primary btn-lg">
+
+                    + Solicitar nuevo evento
+
+                </a>
+
+                <a asp-controller="Solicitudes"
+                   asp-action="Index"
+                   class="btn btn-light btn-lg">
+
+                    Mis solicitudes
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RESUMEN -->
+
+   <div class="row g-3 mb-4">
+
+    <div class="col-md-6 col-xl">
+
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-2">
+                    Total
                 </p>
 
-                <div class="d-flex flex-wrap gap-3">
-
-                    <a asp-controller="Home"
-                       asp-action="Espacios"
-                       class="btn btn-light btn-lg">
-                        Explorar espacios
-                    </a>
-
-                    <a asp-controller="Cotizacion"
-                       asp-action="Index"
-                       class="btn btn-outline-light btn-lg">
-                        Solicitar cotización
-                    </a>
-
+                <div class="display-6 fw-bold">
+                    @Model.TotalSolicitudes
                 </div>
-
             </div>
         </div>
 
     </div>
 
-</section>
+    <div class="col-md-6 col-xl">
 
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-2">
+                    Borradores
+                </p>
 
-<section class="container py-5">
-
-    <div class="text-center mb-5">
-
-        <h2 class="fw-bold">
-            Espacios para cada ocasión
-        </h2>
-
-        <p class="text-muted">
-            Conoce las diferentes opciones que Expocentro
-            ofrece para realizar tu próximo evento.
-        </p>
-
-    </div>
-
-    <div class="row g-4">
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow-sm border-0">
-
-                <div class="card-body">
-
-                    <h3 class="h4">
-                        Eventos empresariales
-                    </h3>
-
-                    <p class="text-muted">
-                        Espacios preparados para reuniones,
-                        conferencias y actividades corporativas.
-                    </p>
-
+                <div class="display-6 fw-bold text-secondary">
+                    @Model.TotalBorradores
                 </div>
-
             </div>
-
-        </div>
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow-sm border-0">
-
-                <div class="card-body">
-
-                    <h3 class="h4">
-                        Convenciones
-                    </h3>
-
-                    <p class="text-muted">
-                        Espacios adaptables para congresos,
-                        convenciones y encuentros profesionales.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow-sm border-0">
-
-                <div class="card-body">
-
-                    <h3 class="h4">
-                        Exposiciones
-                    </h3>
-
-                    <p class="text-muted">
-                        Áreas para ferias, exposiciones
-                        y diferentes tipos de actividades.
-                    </p>
-
-                </div>
-
-            </div>
-
         </div>
 
     </div>
 
-</section>
+</div>
+
+
+    <!-- ACCESOS RÁPIDOS -->
+
+    <div class="row g-3 mb-5">
+
+        <div class="col-md-6">
+
+            <a asp-controller="Solicitudes"
+               asp-action="Create"
+               class="text-decoration-none text-dark">
+
+                <div class="card dashboard-action-card
+                            border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="fs-2 mb-3">
+                            +
+                        </div>
+
+                        <h2 class="h5 fw-bold">
+                            Nueva solicitud
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Registra una nueva solicitud
+                            de evento interno.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <a asp-controller="Solicitudes"
+               asp-action="Index"
+               class="text-decoration-none text-dark">
+
+                <div class="card dashboard-action-card
+                            border-0 shadow-sm h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="fs-2 mb-3">
+                            ≡
+                        </div>
+
+                        <h2 class="h5 fw-bold">
+                            Mis solicitudes
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Consulta el estado de los eventos
+                            que has registrado.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- SOLICITUDES RECIENTES -->
+
+    <div class="d-flex justify-content-between
+                align-items-center mb-3">
+
+        <div>
+
+            <h2 class="h4 fw-bold mb-1">
+                Solicitudes recientes
+            </h2>
+
+            <p class="text-muted mb-0">
+                Últimos eventos registrados.
+            </p>
+
+        </div>
+
+        <a asp-controller="Solicitudes"
+           asp-action="Index"
+           class="btn btn-outline-primary">
+
+            Ver todas
+
+        </a>
+
+    </div>
+
+
+    <div class="card border-0 shadow-sm">
+
+        @if (Model.SolicitudesRecientes.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table table-hover
+                              align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th>Código</th>
+                            <th>Evento</th>
+                            <th>Fecha</th>
+                            <th>Salón</th>
+                            <th>Estado</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    @foreach (var solicitud in Model.SolicitudesRecientes)
+{
+    var estadoTexto = solicitud.Estado.Nombre;
+
+    var badgeClass = estadoTexto switch
+    {
+        "Borrador" => "bg-secondary",
+        "Enviada" => "bg-primary",
+        "En revisión" => "bg-warning text-dark",
+        "Aprobada" => "bg-success",
+        "Rechazada" => "bg-danger",
+        _ => "bg-dark"
+    };
+
+    <tr>
+        <td>
+            @solicitud.Codigo
+        </td>
+
+        <td class="fw-semibold">
+            @solicitud.NombreEvento
+        </td>
+
+        <td>
+            @solicitud.FechaHoraInicio.ToString("dd/MM/yyyy")
+        </td>
+
+        <td>
+            @solicitud.Salon.Nombre
+        </td>
+
+        <td>
+            <span class="badge @badgeClass px-3 py-2">
+                @estadoTexto
+            </span>
+        </td>
+    </tr>
+}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="card-body text-center py-5">
+
+                <h3 class="h5">
+                    Todavía no tienes solicitudes
+                </h3>
+
+                <p class="text-muted">
+                    Registra tu primer evento interno
+                    para comenzar.
+                </p>
+
+                <a asp-controller="Solicitudes"
+                   asp-action="Create"
+                   class="btn btn-primary">
+
+                    + Nueva solicitud
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</div>
