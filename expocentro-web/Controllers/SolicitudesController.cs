@@ -115,18 +115,85 @@ public class SolicitudesController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+// DETALLE DE SOLICITUD
+// DETALLE DE SOLICITUD
+public async Task<IActionResult> Details(int id)
+{
+    const int usuarioDemoId = 1;
 
-    private async Task CargarSalones(
-        SolicitudEventoCreateViewModel model)
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Salon)
+        .Include(x => x.Estado)
+        .Include(x => x.SolicitanteUsuario)
+        .Include(x => x.ResponsableUsuario)
+        .Include(x => x.DepartamentoCargo)
+        .FirstOrDefaultAsync(x =>
+            x.Id == id &&
+            x.SolicitanteUsuarioId == usuarioDemoId);
+
+    if (solicitud == null)
     {
-        model.Salones = await _context.Salones
-            .Where(x => x.Activo)
-            .OrderBy(x => x.Nombre)
-            .Select(x => new SelectListItem
-            {
-                Value = x.Id.ToString(),
-                Text = x.Nombre
-            })
-            .ToListAsync();
+        return NotFound();
     }
+
+    return View(solicitud);
 }
+
+
+// ENVIAR SOLICITUD
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Enviar(int id)
+{
+    const int usuarioDemoId = 1;
+
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Estado)
+        .FirstOrDefaultAsync(x =>
+            x.Id == id &&
+            x.SolicitanteUsuarioId == usuarioDemoId);
+
+    if (solicitud == null)
+    {
+        return NotFound();
+    }
+
+    if (solicitud.Estado.Nombre != "Borrador")
+    {
+        TempData["Error"] =
+            "Solo las solicitudes en borrador pueden enviarse.";
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    var estadoEnviada = await _context.EstadosSolicitud
+        .FirstAsync(x => x.Nombre == "Enviada");
+
+    solicitud.EstadoId = estadoEnviada.Id;
+    solicitud.FechaActualizacion = DateTimeOffset.UtcNow;
+
+    await _context.SaveChangesAsync();
+
+    TempData["Mensaje"] =
+        "La solicitud fue enviada correctamente.";
+
+    return RedirectToAction(nameof(Details), new { id });
+}
+
+
+// MÉTODO AUXILIAR
+private async Task CargarSalones(
+    SolicitudEventoCreateViewModel model)
+{
+    model.Salones = await _context.Salones
+        .Where(x => x.Activo)
+        .OrderBy(x => x.Nombre)
+        .Select(x => new SelectListItem
+        {
+            Value = x.Id.ToString(),
+            Text = x.Nombre
+        })
+        .ToListAsync();
+}
+}
+

@@ -49,6 +49,7 @@
                         <th>Salón</th>
                         <th>Personas</th>
                         <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
 
                 </thead>
@@ -83,6 +84,14 @@
                             <span class="badge bg-secondary">
                                 @solicitud.Estado.Nombre
                             </span>
+                        </td>
+
+                        <td>
+                            <a asp-action="Details"
+                               asp-route-id="@solicitud.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Ver detalle
+                            </a>
                         </td>
 
                     </tr>
