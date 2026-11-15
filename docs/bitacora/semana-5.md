@@ -1,0 +1,12 @@
+- Configuración de montaje por solicitud.
+- Configuración de servicios requeridos.
+- Registro de requerimientos de alimentación.
+- Pantalla de resumen antes del envío.
+- Flujo completo del solicitante.
+- Panel de coordinación de eventos.
+- Cambio de estado: Enviada → En revisión → Aprobada/Rechazada.
+- Registro obligatorio del motivo de rechazo.
+- Historial de estados y trazabilidad de la solicitud.
+- Visualización del historial para el solicitante.
+- Mejoras de estructura y presentación en las vistas.
+- Corrección del footer y organización del detalle de solicitudes.
