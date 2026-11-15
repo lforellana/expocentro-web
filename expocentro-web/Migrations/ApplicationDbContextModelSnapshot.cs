@@ -22,6 +22,49 @@ namespace Expocentro.Web.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Expocentro.Web.Models.AlimentacionEvento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CantidadPersonas")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Detalle")
+                        .HasColumnType("text");
+
+                    b.Property<TimeOnly?>("HoraServicio")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<bool>("IncluyeAgua")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IncluyeCafe")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IncluyeRefrigerio")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("RequiereAlimentacion")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("SolicitudEventoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SolicitudEventoId")
+                        .IsUnique();
+
+                    b.ToTable("AlimentacionesEvento");
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.Departamento", b =>
                 {
                     b.Property<int>("Id")
@@ -507,6 +550,17 @@ namespace Expocentro.Web.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Expocentro.Web.Models.AlimentacionEvento", b =>
+                {
+                    b.HasOne("Expocentro.Web.Models.SolicitudEvento", "SolicitudEvento")
+                        .WithOne("Alimentacion")
+                        .HasForeignKey("Expocentro.Web.Models.AlimentacionEvento", "SolicitudEventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SolicitudEvento");
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
                 {
                     b.HasOne("Expocentro.Web.Models.Departamento", "DepartamentoCargo")
@@ -610,6 +664,8 @@ namespace Expocentro.Web.Migrations
 
             modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
                 {
+                    b.Navigation("Alimentacion");
+
                     b.Navigation("Montajes");
 
                     b.Navigation("Servicios");

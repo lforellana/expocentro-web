@@ -1,0 +1,317 @@
+@model Expocentro.Web.ViewModels.SolicitudAlimentacionViewModel
+
+@{
+    ViewData["Title"] = "Alimentación";
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+
+        <p class="text-muted mb-1">
+            @Model.Codigo
+        </p>
+
+        <h1 class="fw-bold">
+            Alimentación
+        </h1>
+
+        <p class="text-muted">
+            @Model.NombreEvento
+        </p>
+
+    </div>
+
+    <div class="mb-5">
+
+        <div class="d-flex justify-content-between text-center">
+
+            <div class="flex-fill">
+                <strong>✓ Datos generales</strong>
+            </div>
+
+            <div class="flex-fill">
+                <strong>✓ Montaje</strong>
+            </div>
+
+            <div class="flex-fill">
+                <strong>✓ Servicios</strong>
+            </div>
+
+            <div class="flex-fill text-primary">
+                <strong>4. Alimentación</strong>
+            </div>
+
+            <div class="flex-fill text-muted">
+                5. Resumen
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <form asp-action="Alimentacion"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="SolicitudEventoId"
+               type="hidden" />
+
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-4">
+
+                <h5 class="fw-bold mb-4">
+                    ¿El evento requiere alimentación?
+                </h5>
+
+
+                <div class="form-check mb-2">
+
+                    <input asp-for="RequiereAlimentacion"
+                           class="form-check-input alimentacion-radio"
+                           type="radio"
+                           value="true"
+                           id="alimentacionSi" />
+
+                    <label class="form-check-label"
+                           for="alimentacionSi">
+
+                        Sí, requiere alimentación
+
+                    </label>
+
+                </div>
+
+
+                <div class="form-check mb-4">
+
+                    <input asp-for="RequiereAlimentacion"
+                           class="form-check-input alimentacion-radio"
+                           type="radio"
+                           value="false"
+                           id="alimentacionNo" />
+
+                    <label class="form-check-label"
+                           for="alimentacionNo">
+
+                        No requiere alimentación
+
+                    </label>
+
+                </div>
+
+                <span asp-validation-for="RequiereAlimentacion"
+                      class="text-danger">
+                </span>
+
+
+                <div id="detalleAlimentacion">
+
+                    <hr />
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <label asp-for="CantidadPersonas"
+                                   class="form-label">
+                                Cantidad de personas
+                            </label>
+
+                            <input asp-for="CantidadPersonas"
+                                   class="form-control"
+                                   min="1" />
+
+                            <span asp-validation-for="CantidadPersonas"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label asp-for="HoraServicio"
+                                   class="form-label">
+                                Hora aproximada
+                            </label>
+
+                            <input asp-for="HoraServicio"
+                                   type="time"
+                                   class="form-control" />
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <label asp-for="Detalle"
+                                   class="form-label">
+                                Detalle / menú requerido
+                            </label>
+
+                            <textarea asp-for="Detalle"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Ej. Almuerzo ejecutivo, coffee break, refrigerio...">
+                            </textarea>
+
+                            <span asp-validation-for="Detalle"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <h6 class="fw-bold mt-4 mb-3">
+                        Complementos
+                    </h6>
+
+
+                    <div class="form-check">
+
+                        <input asp-for="IncluyeAgua"
+                               class="form-check-input" />
+
+                        <label asp-for="IncluyeAgua"
+                               class="form-check-label">
+
+                            Agua
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="form-check">
+
+                        <input asp-for="IncluyeCafe"
+                               class="form-check-input" />
+
+                        <label asp-for="IncluyeCafe"
+                               class="form-check-label">
+
+                            Café
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="form-check">
+
+                        <input asp-for="IncluyeRefrigerio"
+                               class="form-check-input" />
+
+                        <label asp-for="IncluyeRefrigerio"
+                               class="form-check-label">
+
+                            Refrigerio adicional
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="mt-3">
+
+                        <label asp-for="Observaciones"
+                               class="form-label">
+                            Observaciones
+                        </label>
+
+                        <textarea asp-for="Observaciones"
+                                  class="form-control"
+                                  rows="2">
+                        </textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="d-flex justify-content-between mt-4">
+
+            <a asp-action="Servicios"
+               asp-route-id="@Model.SolicitudEventoId"
+               class="btn btn-outline-secondary">
+
+                ← Regresar a servicios
+
+            </a>
+
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                Continuar al resumen
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        function actualizarAlimentacion() {
+
+            const seleccionado =
+                document.querySelector(
+                    'input[name="RequiereAlimentacion"]:checked'
+                );
+
+            const detalle =
+                document.getElementById("detalleAlimentacion");
+
+            if (!seleccionado ||
+                seleccionado.value === "false") {
+
+                detalle.style.display = "none";
+
+            }
+            else {
+
+                detalle.style.display = "block";
+
+            }
+        }
+
+        document.querySelectorAll(
+            ".alimentacion-radio"
+        ).forEach(radio => {
+
+            radio.addEventListener(
+                "change",
+                actualizarAlimentacion
+            );
+
+        });
+
+        actualizarAlimentacion();
+
+    </script>
+
+}

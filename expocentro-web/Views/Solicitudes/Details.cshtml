@@ -199,6 +199,82 @@
 
 </div>
 
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h5 class="fw-bold mb-0">
+                Alimentación
+            </h5>
+
+            @if (Model.Estado.Nombre == "Borrador")
+            {
+                <a asp-action="Alimentacion"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-sm btn-outline-primary">
+
+                    Configurar alimentación
+
+                </a>
+            }
+
+        </div>
+
+        @if (Model.Alimentacion == null)
+        {
+            <p class="text-muted mb-0">
+                No se ha configurado la alimentación.
+            </p>
+        }
+        else if (!Model.Alimentacion.RequiereAlimentacion)
+        {
+            <p class="mb-0">
+                No requiere alimentación.
+            </p>
+        }
+        else
+        {
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <small class="text-muted">
+                        Personas
+                    </small>
+
+                    <div class="fw-semibold">
+                        @Model.Alimentacion.CantidadPersonas
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <small class="text-muted">
+                        Hora
+                    </small>
+
+                    <div class="fw-semibold">
+                        @(Model.Alimentacion.HoraServicio?.ToString("HH:mm") ?? "-")
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <small class="text-muted">
+                        Detalle
+                    </small>
+
+                    <div class="fw-semibold">
+                        @Model.Alimentacion.Detalle
+                    </div>
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
 </div>
             <div class="row g-4">
 

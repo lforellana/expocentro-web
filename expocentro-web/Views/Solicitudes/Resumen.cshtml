@@ -39,6 +39,10 @@
                 <strong>✓ Servicios</strong>
             </div>
 
+             <div class="flex-fill">
+                <strong>✓ Alimentación</strong>
+            </div>
+
             <div class="flex-fill text-primary">
                 <strong>4. Resumen</strong>
             </div>
@@ -292,6 +296,128 @@
 
     </div>
 
+<!-- ALIMENTACIÓN -->
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h5 class="fw-bold mb-0">
+                Alimentación
+            </h5>
+
+            <a asp-action="Alimentacion"
+               asp-route-id="@Model.Id"
+               class="btn btn-sm btn-outline-primary">
+
+                Editar
+
+            </a>
+
+        </div>
+
+        @if (Model.Alimentacion == null)
+        {
+            <p class="text-muted mb-0">
+                No se ha completado la información de alimentación.
+            </p>
+        }
+        else if (!Model.Alimentacion.RequiereAlimentacion)
+        {
+            <div class="alert alert-light border mb-0">
+                El evento no requiere alimentación.
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        Cantidad de personas
+                    </small>
+
+                    <div class="fw-semibold">
+                        @Model.Alimentacion.CantidadPersonas
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        Hora de servicio
+                    </small>
+
+                    <div class="fw-semibold">
+                        @(Model.Alimentacion.HoraServicio?.ToString("HH:mm") ?? "-")
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <small class="text-muted">
+                        Detalle / menú
+                    </small>
+
+                    <div class="fw-semibold">
+                        @(string.IsNullOrWhiteSpace(Model.Alimentacion.Detalle)
+                            ? "-"
+                            : Model.Alimentacion.Detalle)
+                    </div>
+                </div>
+
+            </div>
+
+            <hr />
+
+            <h6 class="fw-bold">
+                Complementos
+            </h6>
+
+            <div class="d-flex gap-3 flex-wrap">
+
+                @if (Model.Alimentacion.IncluyeAgua)
+                {
+                    <span class="badge bg-light text-dark border">
+                        Agua
+                    </span>
+                }
+
+                @if (Model.Alimentacion.IncluyeCafe)
+                {
+                    <span class="badge bg-light text-dark border">
+                        Café
+                    </span>
+                }
+
+                @if (Model.Alimentacion.IncluyeRefrigerio)
+                {
+                    <span class="badge bg-light text-dark border">
+                        Refrigerio adicional
+                    </span>
+                }
+
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(
+                Model.Alimentacion.Observaciones))
+            {
+                <div class="mt-3">
+
+                    <small class="text-muted">
+                        Observaciones
+                    </small>
+
+                    <p class="mb-0">
+                        @Model.Alimentacion.Observaciones
+                    </p>
+
+                </div>
+            }
+        }
+
+    </div>
+
+</div>
 
     <!-- ACCIONES -->
     <div class="d-flex justify-content-between align-items-center">

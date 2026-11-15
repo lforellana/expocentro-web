@@ -136,6 +136,7 @@ public async Task<IActionResult> Details(int id)
 // NUEVO: servicios
             .Include(x => x.Servicios)
     .ThenInclude(x => x.Servicio)
+    .Include(x => x.Alimentacion)
 
         .FirstOrDefaultAsync(x =>
             x.Id == id &&
@@ -472,8 +473,179 @@ public async Task<IActionResult> Servicios(
     "Los servicios fueron guardados correctamente.";
 
 return RedirectToAction(
-    nameof(Resumen),
+    nameof(Alimentacion),
     new { id = solicitud.Id });
+}
+
+// CONFIGURAR ALIMENTACIÓN
+[HttpGet]
+public async Task<IActionResult> Alimentacion(int id)
+{
+    const int usuarioDemoId = 1;
+
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Estado)
+        .Include(x => x.Alimentacion)
+        .FirstOrDefaultAsync(x =>
+            x.Id == id &&
+            x.SolicitanteUsuarioId == usuarioDemoId);
+
+    if (solicitud == null)
+    {
+        return NotFound();
+    }
+
+    if (solicitud.Estado.Nombre != "Borrador")
+    {
+        return RedirectToAction(
+            nameof(Details),
+            new { id });
+    }
+
+    var model = new SolicitudAlimentacionViewModel
+    {
+        SolicitudEventoId = solicitud.Id,
+        Codigo = solicitud.Codigo,
+        NombreEvento = solicitud.NombreEvento,
+
+        RequiereAlimentacion =
+            solicitud.Alimentacion?.RequiereAlimentacion,
+
+        CantidadPersonas =
+            solicitud.Alimentacion?.CantidadPersonas
+            ?? solicitud.CantidadPersonas,
+
+        HoraServicio =
+            solicitud.Alimentacion?.HoraServicio,
+
+        Detalle =
+            solicitud.Alimentacion?.Detalle,
+
+        IncluyeAgua =
+            solicitud.Alimentacion?.IncluyeAgua ?? false,
+
+        IncluyeCafe =
+            solicitud.Alimentacion?.IncluyeCafe ?? false,
+
+        IncluyeRefrigerio =
+            solicitud.Alimentacion?.IncluyeRefrigerio ?? false,
+
+        Observaciones =
+            solicitud.Alimentacion?.Observaciones
+    };
+
+    return View(model);
+}
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Alimentacion(
+    SolicitudAlimentacionViewModel model)
+{
+    const int usuarioDemoId = 1;
+
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Estado)
+        .Include(x => x.Alimentacion)
+        .FirstOrDefaultAsync(x =>
+            x.Id == model.SolicitudEventoId &&
+            x.SolicitanteUsuarioId == usuarioDemoId);
+
+    if (solicitud == null)
+    {
+        return NotFound();
+    }
+
+    if (solicitud.Estado.Nombre != "Borrador")
+    {
+        return RedirectToAction(
+            nameof(Details),
+            new { id = solicitud.Id });
+    }
+
+    if (model.RequiereAlimentacion == true)
+    {
+        if (model.CantidadPersonas is null
+            || model.CantidadPersonas <= 0)
+        {
+            ModelState.AddModelError(
+                nameof(model.CantidadPersonas),
+                "Debe indicar la cantidad de personas.");
+        }
+
+        if (string.IsNullOrWhiteSpace(model.Detalle))
+        {
+            ModelState.AddModelError(
+                nameof(model.Detalle),
+                "Debe indicar el detalle de la alimentación.");
+        }
+    }
+
+    if (!ModelState.IsValid)
+    {
+        model.Codigo = solicitud.Codigo;
+        model.NombreEvento = solicitud.NombreEvento;
+
+        return View(model);
+    }
+
+    var alimentacion =
+        solicitud.Alimentacion
+        ?? new AlimentacionEvento
+        {
+            SolicitudEventoId = solicitud.Id
+        };
+
+    alimentacion.RequiereAlimentacion =
+        model.RequiereAlimentacion!.Value;
+
+    if (model.RequiereAlimentacion == true)
+    {
+        alimentacion.CantidadPersonas =
+            model.CantidadPersonas;
+
+        alimentacion.HoraServicio =
+            model.HoraServicio;
+
+        alimentacion.Detalle =
+            model.Detalle;
+
+        alimentacion.IncluyeAgua =
+            model.IncluyeAgua;
+
+        alimentacion.IncluyeCafe =
+            model.IncluyeCafe;
+
+        alimentacion.IncluyeRefrigerio =
+            model.IncluyeRefrigerio;
+
+        alimentacion.Observaciones =
+            model.Observaciones;
+    }
+    else
+    {
+        alimentacion.CantidadPersonas = null;
+        alimentacion.HoraServicio = null;
+        alimentacion.Detalle = null;
+        alimentacion.IncluyeAgua = false;
+        alimentacion.IncluyeCafe = false;
+        alimentacion.IncluyeRefrigerio = false;
+        alimentacion.Observaciones = null;
+    }
+
+    if (solicitud.Alimentacion == null)
+    {
+        _context.AlimentacionesEvento.Add(alimentacion);
+    }
+
+    solicitud.FechaActualizacion =
+        DateTimeOffset.UtcNow;
+
+    await _context.SaveChangesAsync();
+
+    return RedirectToAction(
+        nameof(Resumen),
+        new { id = solicitud.Id });
 }
 
 
@@ -492,6 +664,7 @@ public async Task<IActionResult> Resumen(int id)
             .ThenInclude(x => x.TipoMontaje)
         .Include(x => x.Servicios)
             .ThenInclude(x => x.Servicio)
+            .Include(x => x.Alimentacion)
         .FirstOrDefaultAsync(x =>
             x.Id == id &&
             x.SolicitanteUsuarioId == usuarioDemoId);
@@ -523,6 +696,7 @@ public async Task<IActionResult> Enviar(int id)
         .Include(x => x.Estado)
         .Include(x => x.Montajes)
         .Include(x => x.Servicios)
+        .Include(x => x.Alimentacion)
         .FirstOrDefaultAsync(x =>
             x.Id == id &&
             x.SolicitanteUsuarioId == usuarioDemoId);
@@ -556,6 +730,14 @@ if (!solicitud.Servicios.Any())
     return RedirectToAction(nameof(Details), new { id });
 }
 
+if (solicitud.Alimentacion == null)
+{
+    TempData["Error"] =
+        "Debe completar la información de alimentación antes de enviar la solicitud.";
+
+    return RedirectToAction(nameof(Details), new { id });
+}
+
     var estadoEnviada = await _context.EstadosSolicitud
         .FirstAsync(x => x.Nombre == "Enviada");
 
@@ -569,6 +751,7 @@ if (!solicitud.Servicios.Any())
 
     return RedirectToAction(nameof(Details), new { id });
 }
+
 
 
 // MÉTODO AUXILIAR

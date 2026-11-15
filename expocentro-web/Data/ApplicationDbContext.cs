@@ -25,6 +25,9 @@ public DbSet<Servicio> Servicios => Set<Servicio>();
 public DbSet<SolicitudServicio> SolicitudesServicio
     => Set<SolicitudServicio>();
 
+    public DbSet<AlimentacionEvento> AlimentacionesEvento
+    => Set<AlimentacionEvento>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -112,6 +115,23 @@ modelBuilder.Entity<SolicitudServicio>()
             .HasIndex(x => x.Correo)
             .IsUnique();
 
+
+
+// ============================
+// ALIMENTACIÓN
+// ============================
+
+modelBuilder.Entity<AlimentacionEvento>()
+    .HasOne(x => x.SolicitudEvento)
+    .WithOne(x => x.Alimentacion)
+    .HasForeignKey<AlimentacionEvento>(
+        x => x.SolicitudEventoId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+modelBuilder.Entity<AlimentacionEvento>()
+    .HasIndex(x => x.SolicitudEventoId)
+    .IsUnique();
+    
         // ============================
         // DATOS INICIALES
         // ============================
