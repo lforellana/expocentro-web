@@ -17,6 +17,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<EstadoSolicitud> EstadosSolicitud => Set<EstadoSolicitud>();
     public DbSet<SolicitudEvento> SolicitudesEvento => Set<SolicitudEvento>();
 
+    public DbSet<TipoMontaje> TiposMontaje => Set<TipoMontaje>();
+    public DbSet<SolicitudMontaje> SolicitudesMontaje => Set<SolicitudMontaje>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -43,6 +46,34 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(x => x.ResponsableUsuarioId)
             .OnDelete(DeleteBehavior.Restrict);
+
+
+// ============================
+// MONTAJES
+// ============================
+
+modelBuilder.Entity<SolicitudMontaje>()
+    .HasOne(x => x.SolicitudEvento)
+    .WithMany(x => x.Montajes)
+    .HasForeignKey(x => x.SolicitudEventoId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+modelBuilder.Entity<SolicitudMontaje>()
+    .HasOne(x => x.TipoMontaje)
+    .WithMany(x => x.SolicitudesMontaje)
+    .HasForeignKey(x => x.TipoMontajeId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<SolicitudMontaje>()
+    .HasIndex(x => new
+    {
+        x.SolicitudEventoId,
+        x.TipoMontajeId
+    })
+    .IsUnique();
+
+
+
 
         // Índices únicos
         modelBuilder.Entity<SolicitudEvento>()
@@ -136,8 +167,74 @@ public class ApplicationDbContext : DbContext
                 Nombre = "Rechazada",
                 Activo = true
             }
+
+            
         );
 
+modelBuilder.Entity<TipoMontaje>().HasData(
+    new TipoMontaje
+    {
+        Id = 1,
+        Nombre = "Auditorio",
+        Activo = true
+    },
+    new TipoMontaje
+    {
+        Id = 2,
+        Nombre = "Escuela",
+        Activo = true
+    },
+    new TipoMontaje
+    {
+        Id = 3,
+        Nombre = "Banquete",
+        Activo = true
+    },
+    new TipoMontaje
+    {
+        Id = 4,
+        Nombre = "Imperial",
+        Activo = true
+    },
+    new TipoMontaje
+    {
+        Id = 5,
+        Nombre = "Mesa en U",
+        Activo = true
+    },
+    new TipoMontaje
+    {
+        Id = 6,
+        Nombre = "Mesa principal",
+        Activo = true
+    },
+    new TipoMontaje
+    {
+        Id = 7,
+        Nombre = "Mesa de inscripción",
+        Activo = true
+    },
+    new TipoMontaje
+    {
+        Id = 8,
+        Nombre = "Mesa coctelera",
+        Activo = true
+    },
+    new TipoMontaje
+    {
+        Id = 9,
+        Nombre = "Buffet",
+        Activo = true
+    },
+    new TipoMontaje
+{
+    Id = 10,
+    Nombre = "Sin montaje",
+    Activo = true
+}
+
+    
+);
         // Usuario temporal hasta implementar Entra ID
         modelBuilder.Entity<Usuario>().HasData(
             new Usuario

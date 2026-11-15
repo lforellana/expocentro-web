@@ -239,6 +239,118 @@ namespace Expocentro.Web.Migrations
                     b.ToTable("SolicitudesEvento");
                 });
 
+            modelBuilder.Entity("Expocentro.Web.Models.SolicitudMontaje", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<int>("SolicitudEventoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TipoMontajeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TipoMontajeId");
+
+                    b.HasIndex("SolicitudEventoId", "TipoMontajeId")
+                        .IsUnique();
+
+                    b.ToTable("SolicitudesMontaje");
+                });
+
+            modelBuilder.Entity("Expocentro.Web.Models.TipoMontaje", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TiposMontaje");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activo = true,
+                            Nombre = "Auditorio"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Activo = true,
+                            Nombre = "Escuela"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activo = true,
+                            Nombre = "Banquete"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Activo = true,
+                            Nombre = "Imperial"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Activo = true,
+                            Nombre = "Mesa en U"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Activo = true,
+                            Nombre = "Mesa principal"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Activo = true,
+                            Nombre = "Mesa de inscripción"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Activo = true,
+                            Nombre = "Mesa coctelera"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Activo = true,
+                            Nombre = "Buffet"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Activo = true,
+                            Nombre = "Sin montaje"
+                        });
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -331,6 +443,25 @@ namespace Expocentro.Web.Migrations
                     b.Navigation("SolicitanteUsuario");
                 });
 
+            modelBuilder.Entity("Expocentro.Web.Models.SolicitudMontaje", b =>
+                {
+                    b.HasOne("Expocentro.Web.Models.SolicitudEvento", "SolicitudEvento")
+                        .WithMany("Montajes")
+                        .HasForeignKey("SolicitudEventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Expocentro.Web.Models.TipoMontaje", "TipoMontaje")
+                        .WithMany("SolicitudesMontaje")
+                        .HasForeignKey("TipoMontajeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SolicitudEvento");
+
+                    b.Navigation("TipoMontaje");
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.Usuario", b =>
                 {
                     b.HasOne("Expocentro.Web.Models.Departamento", "Departamento")
@@ -345,6 +476,16 @@ namespace Expocentro.Web.Migrations
             modelBuilder.Entity("Expocentro.Web.Models.Departamento", b =>
                 {
                     b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
+                {
+                    b.Navigation("Montajes");
+                });
+
+            modelBuilder.Entity("Expocentro.Web.Models.TipoMontaje", b =>
+                {
+                    b.Navigation("SolicitudesMontaje");
                 });
 #pragma warning restore 612, 618
         }

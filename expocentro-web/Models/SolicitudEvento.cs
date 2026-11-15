@@ -41,4 +41,7 @@ public class SolicitudEvento
     public DateTimeOffset FechaCreacion { get; set; }
 
     public DateTimeOffset FechaActualizacion { get; set; }
+
+    public ICollection<SolicitudMontaje> Montajes { get; set; }
+    = new List<SolicitudMontaje>();
 }

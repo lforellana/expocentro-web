@@ -1,0 +1,194 @@
+@model Expocentro.Web.ViewModels.SolicitudMontajeViewModel
+
+@{
+    ViewData["Title"] = "Montaje";
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <p class="text-muted mb-1">
+            @Model.Codigo
+        </p>
+
+        <h1 class="fw-bold">
+            Configuración de montaje
+        </h1>
+
+        <p class="text-muted">
+            @Model.NombreEvento
+        </p>
+    </div>
+
+    <div class="mb-4">
+        <div class="d-flex justify-content-between text-center">
+            <div class="flex-fill">
+                <strong>✓ Datos generales</strong>
+            </div>
+
+            <div class="flex-fill text-primary">
+                <strong>2. Montaje</strong>
+            </div>
+
+            <div class="flex-fill text-muted">
+                3. Servicios
+            </div>
+
+            <div class="flex-fill text-muted">
+                4. Resumen
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Montaje" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="SolicitudEventoId" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+        <div class="row g-3">
+
+            @for (var i = 0; i < Model.Montajes.Count; i++)
+            {
+                <div class="col-md-6 col-lg-4">
+
+                    <div class="card h-100 border shadow-sm">
+
+                        <div class="card-body">
+
+                            <input asp-for="Montajes[i].TipoMontajeId"
+                                   type="hidden" />
+
+                            <input asp-for="Montajes[i].Nombre"
+                                   type="hidden" />
+
+                            <div class="form-check mb-3">
+
+                                <input asp-for="Montajes[i].Seleccionado"
+                                       class="form-check-input montaje-check"
+                                       data-index="@i" />
+
+                                <label asp-for="Montajes[i].Seleccionado"
+                                       class="form-check-label fw-bold">
+                                    @Model.Montajes[i].Nombre
+                                </label>
+
+                            </div>
+
+                            @if (Model.Montajes[i].Nombre == "Sin montaje")
+{
+    <input asp-for="Montajes[i].Cantidad"
+           type="hidden"
+           value="1" />
+}
+else
+{
+    <div class="montaje-detalle"
+         id="detalle-@i">
+
+        <label class="form-label">
+            Cantidad
+        </label>
+
+        <input asp-for="Montajes[i].Cantidad"
+               class="form-control mb-3"
+               min="1" />
+
+        <label class="form-label">
+            Observaciones
+        </label>
+
+        <textarea asp-for="Montajes[i].Observaciones"
+                  class="form-control"
+                  rows="2"></textarea>
+
+    </div>
+}
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+
+            <a asp-action="Details"
+               asp-route-id="@Model.SolicitudEventoId"
+               class="btn btn-outline-secondary">
+
+                ← Regresar
+
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                Guardar montaje
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const checks = document.querySelectorAll(".montaje-check");
+
+            checks.forEach(check => {
+
+                check.addEventListener("change", function () {
+
+                    const label = this.closest(".form-check")
+                        .querySelector(".form-check-label")
+                        .textContent
+                        .trim();
+
+                    if (label === "Sin montaje" && this.checked) {
+
+                        checks.forEach(other => {
+
+                            if (other !== this) {
+                                other.checked = false;
+                            }
+
+                        });
+
+                    }
+                    else if (this.checked) {
+
+                        checks.forEach(other => {
+
+                            const otherLabel = other.closest(".form-check")
+                                .querySelector(".form-check-label")
+                                .textContent
+                                .trim();
+
+                            if (otherLabel === "Sin montaje") {
+                                other.checked = false;
+                            }
+
+                        });
+
+                    }
+
+                });
+
+            });
+
+        });
+    </script>
+}

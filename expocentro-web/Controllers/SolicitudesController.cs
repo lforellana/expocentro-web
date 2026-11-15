@@ -108,14 +108,16 @@ public class SolicitudesController : Controller
 
         _context.SolicitudesEvento.Add(solicitud);
 
-        await _context.SaveChangesAsync();
+await _context.SaveChangesAsync();
 
-        TempData["Mensaje"] =
-            "La solicitud fue registrada correctamente.";
+TempData["Mensaje"] =
+    "Datos generales guardados correctamente.";
 
-        return RedirectToAction(nameof(Index));
+return RedirectToAction(
+    nameof(Montaje),
+    new { id = solicitud.Id });
     }
-// DETALLE DE SOLICITUD
+
 // DETALLE DE SOLICITUD
 public async Task<IActionResult> Details(int id)
 {
@@ -127,6 +129,11 @@ public async Task<IActionResult> Details(int id)
         .Include(x => x.SolicitanteUsuario)
         .Include(x => x.ResponsableUsuario)
         .Include(x => x.DepartamentoCargo)
+
+        // NUEVO: cargar montajes
+        .Include(x => x.Montajes)
+            .ThenInclude(x => x.TipoMontaje)
+
         .FirstOrDefaultAsync(x =>
             x.Id == id &&
             x.SolicitanteUsuarioId == usuarioDemoId);
@@ -138,12 +145,9 @@ public async Task<IActionResult> Details(int id)
 
     return View(solicitud);
 }
-
-
-// ENVIAR SOLICITUD
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Enviar(int id)
+// CONFIGURAR MONTAJE
+[HttpGet]
+public async Task<IActionResult> Montaje(int id)
 {
     const int usuarioDemoId = 1;
 
@@ -161,10 +165,179 @@ public async Task<IActionResult> Enviar(int id)
     if (solicitud.Estado.Nombre != "Borrador")
     {
         TempData["Error"] =
+            "Solo se puede modificar el montaje de una solicitud en borrador.";
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    var montajesGuardados = await _context.SolicitudesMontaje
+        .Where(x => x.SolicitudEventoId == id)
+        .ToListAsync();
+
+    var tiposMontaje = await _context.TiposMontaje
+        .Where(x => x.Activo)
+        .OrderBy(x => x.Nombre)
+        .ToListAsync();
+
+    var model = new SolicitudMontajeViewModel
+    {
+        SolicitudEventoId = solicitud.Id,
+        Codigo = solicitud.Codigo,
+        NombreEvento = solicitud.NombreEvento,
+
+        Montajes = tiposMontaje.Select(tipo =>
+        {
+            var existente = montajesGuardados
+                .FirstOrDefault(x => x.TipoMontajeId == tipo.Id);
+
+            return new MontajeItemViewModel
+            {
+                TipoMontajeId = tipo.Id,
+                Nombre = tipo.Nombre,
+                Seleccionado = existente != null,
+                Cantidad = existente?.Cantidad ?? 1,
+                Observaciones = existente?.Observaciones
+            };
+        }).ToList()
+    };
+
+    return View(model);
+}
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Montaje(
+    SolicitudMontajeViewModel model)
+{
+    const int usuarioDemoId = 1;
+
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Estado)
+        .FirstOrDefaultAsync(x =>
+            x.Id == model.SolicitudEventoId &&
+            x.SolicitanteUsuarioId == usuarioDemoId);
+
+    if (solicitud == null)
+    {
+        return NotFound();
+    }
+
+    if (solicitud.Estado.Nombre != "Borrador")
+    {
+        return RedirectToAction(
+            nameof(Details),
+            new { id = model.SolicitudEventoId });
+    }
+
+    var seleccionados = model.Montajes
+    .Where(x => x.Seleccionado)
+    .ToList();
+
+if (!seleccionados.Any())
+{
+    ModelState.AddModelError(
+        string.Empty,
+        "Debe seleccionar un tipo de montaje o la opción 'Sin montaje'.");
+}
+
+var sinMontaje = seleccionados
+    .Any(x => x.Nombre == "Sin montaje");
+
+if (sinMontaje && seleccionados.Count > 1)
+{
+    ModelState.AddModelError(
+        string.Empty,
+        "Si selecciona 'Sin montaje', no puede seleccionar otros tipos de montaje.");
+}
+
+    if (!ModelState.IsValid)
+    {
+        var nombres = await _context.TiposMontaje
+            .ToDictionaryAsync(x => x.Id, x => x.Nombre);
+
+        model.Codigo = solicitud.Codigo;
+        model.NombreEvento = solicitud.NombreEvento;
+
+        foreach (var item in model.Montajes)
+        {
+            if (nombres.TryGetValue(item.TipoMontajeId, out var nombre))
+            {
+                item.Nombre = nombre;
+            }
+        }
+
+        return View(model);
+    }
+
+    var existentes = await _context.SolicitudesMontaje
+        .Where(x => x.SolicitudEventoId == solicitud.Id)
+        .ToListAsync();
+
+    _context.SolicitudesMontaje.RemoveRange(existentes);
+
+    foreach (var item in seleccionados)
+    {
+
+        if (item.Nombre == "Sin montaje")
+{
+    item.Cantidad = 1;
+    item.Observaciones = null;
+}
+        _context.SolicitudesMontaje.Add(
+            new SolicitudMontaje
+            {
+                SolicitudEventoId = solicitud.Id,
+                TipoMontajeId = item.TipoMontajeId,
+                Cantidad = item.Cantidad,
+                Observaciones = item.Observaciones
+            });
+    }
+
+    solicitud.FechaActualizacion = DateTimeOffset.UtcNow;
+
+    await _context.SaveChangesAsync();
+
+    TempData["Mensaje"] =
+        "El montaje fue guardado correctamente.";
+
+    return RedirectToAction(
+        nameof(Details),
+        new { id = solicitud.Id });
+}
+
+// ENVIAR SOLICITUD
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Enviar(int id)
+{
+    const int usuarioDemoId = 1;
+
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Estado)
+        .Include(x => x.Montajes)
+        .FirstOrDefaultAsync(x =>
+            x.Id == id &&
+            x.SolicitanteUsuarioId == usuarioDemoId);
+
+    if (solicitud == null)
+    {
+        return NotFound();
+    }
+
+    if (solicitud.Estado.Nombre != "Borrador")
+    {
+        TempData["Error"] =
             "Solo las solicitudes en borrador pueden enviarse.";
 
         return RedirectToAction(nameof(Details), new { id });
     }
+
+    if (!solicitud.Montajes.Any())
+{
+    TempData["Error"] =
+        "Debe configurar el montaje antes de enviar la solicitud.";
+
+    return RedirectToAction(nameof(Details), new { id });
+}
 
     var estadoEnviada = await _context.EstadosSolicitud
         .FirstAsync(x => x.Nombre == "Enviada");
