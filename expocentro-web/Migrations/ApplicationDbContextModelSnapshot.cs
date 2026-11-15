@@ -169,6 +169,82 @@ namespace Expocentro.Web.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Expocentro.Web.Models.Servicio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Servicios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activo = true,
+                            Nombre = "Pantalla"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Activo = true,
+                            Nombre = "Data Show"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activo = true,
+                            Nombre = "Audio"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Activo = true,
+                            Nombre = "Micrófono"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Activo = true,
+                            Nombre = "Computadora"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Activo = true,
+                            Nombre = "Pizarra"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Activo = true,
+                            Nombre = "Videoconferencia"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Activo = true,
+                            Nombre = "Internet"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Activo = true,
+                            Nombre = "Sin servicios adicionales"
+                        });
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
                 {
                     b.Property<int>("Id")
@@ -267,6 +343,36 @@ namespace Expocentro.Web.Migrations
                         .IsUnique();
 
                     b.ToTable("SolicitudesMontaje");
+                });
+
+            modelBuilder.Entity("Expocentro.Web.Models.SolicitudServicio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ServicioId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SolicitudEventoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServicioId");
+
+                    b.HasIndex("SolicitudEventoId", "ServicioId")
+                        .IsUnique();
+
+                    b.ToTable("SolicitudesServicio");
                 });
 
             modelBuilder.Entity("Expocentro.Web.Models.TipoMontaje", b =>
@@ -462,6 +568,25 @@ namespace Expocentro.Web.Migrations
                     b.Navigation("TipoMontaje");
                 });
 
+            modelBuilder.Entity("Expocentro.Web.Models.SolicitudServicio", b =>
+                {
+                    b.HasOne("Expocentro.Web.Models.Servicio", "Servicio")
+                        .WithMany("SolicitudesServicio")
+                        .HasForeignKey("ServicioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Expocentro.Web.Models.SolicitudEvento", "SolicitudEvento")
+                        .WithMany("Servicios")
+                        .HasForeignKey("SolicitudEventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Servicio");
+
+                    b.Navigation("SolicitudEvento");
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.Usuario", b =>
                 {
                     b.HasOne("Expocentro.Web.Models.Departamento", "Departamento")
@@ -478,9 +603,16 @@ namespace Expocentro.Web.Migrations
                     b.Navigation("Usuarios");
                 });
 
+            modelBuilder.Entity("Expocentro.Web.Models.Servicio", b =>
+                {
+                    b.Navigation("SolicitudesServicio");
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
                 {
                     b.Navigation("Montajes");
+
+                    b.Navigation("Servicios");
                 });
 
             modelBuilder.Entity("Expocentro.Web.Models.TipoMontaje", b =>

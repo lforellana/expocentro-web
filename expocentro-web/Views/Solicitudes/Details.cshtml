@@ -114,6 +114,91 @@
 
     </div>
 
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h5 class="fw-bold mb-0">
+                Servicios
+            </h5>
+
+            @if (Model.Estado.Nombre == "Borrador")
+            {
+                <a asp-action="Servicios"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-sm btn-outline-primary">
+
+                    Configurar servicios
+
+                </a>
+            }
+
+        </div>
+
+        @if (Model.Servicios.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Servicio</th>
+                            <th>Cantidad</th>
+                            <th>Observaciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    @foreach (var servicio in Model.Servicios)
+                    {
+                        <tr>
+
+                            <td class="fw-semibold">
+                                @servicio.Servicio.Nombre
+                            </td>
+
+                            <td>
+                                @if (servicio.Servicio.Nombre ==
+                                    "Sin servicios adicionales")
+                                {
+                                    <span>-</span>
+                                }
+                                else
+                                {
+                                    @servicio.Cantidad
+                                }
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(servicio.Observaciones)
+                                    ? "-"
+                                    : servicio.Observaciones)
+                            </td>
+
+                        </tr>
+                    }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">
+                No se han configurado servicios.
+            </p>
+        }
+
+    </div>
+
+</div>
+
 </div>
             <div class="row g-4">
 

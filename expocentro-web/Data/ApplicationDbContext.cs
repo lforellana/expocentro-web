@@ -20,6 +20,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<TipoMontaje> TiposMontaje => Set<TipoMontaje>();
     public DbSet<SolicitudMontaje> SolicitudesMontaje => Set<SolicitudMontaje>();
 
+public DbSet<Servicio> Servicios => Set<Servicio>();
+
+public DbSet<SolicitudServicio> SolicitudesServicio
+    => Set<SolicitudServicio>();
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -72,7 +78,29 @@ modelBuilder.Entity<SolicitudMontaje>()
     })
     .IsUnique();
 
+// ============================
+// SERVICIOS
+// ============================
 
+modelBuilder.Entity<SolicitudServicio>()
+    .HasOne(x => x.SolicitudEvento)
+    .WithMany(x => x.Servicios)
+    .HasForeignKey(x => x.SolicitudEventoId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+modelBuilder.Entity<SolicitudServicio>()
+    .HasOne(x => x.Servicio)
+    .WithMany(x => x.SolicitudesServicio)
+    .HasForeignKey(x => x.ServicioId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<SolicitudServicio>()
+    .HasIndex(x => new
+    {
+        x.SolicitudEventoId,
+        x.ServicioId
+    })
+    .IsUnique();
 
 
         // Índices únicos
@@ -232,9 +260,65 @@ modelBuilder.Entity<TipoMontaje>().HasData(
     Nombre = "Sin montaje",
     Activo = true
 }
-
     
 );
+modelBuilder.Entity<Servicio>().HasData(
+    new Servicio
+    {
+        Id = 1,
+        Nombre = "Pantalla",
+        Activo = true
+    },
+    new Servicio
+    {
+        Id = 2,
+        Nombre = "Data Show",
+        Activo = true
+    },
+    new Servicio
+    {
+        Id = 3,
+        Nombre = "Audio",
+        Activo = true
+    },
+    new Servicio
+    {
+        Id = 4,
+        Nombre = "Micrófono",
+        Activo = true
+    },
+    new Servicio
+    {
+        Id = 5,
+        Nombre = "Computadora",
+        Activo = true
+    },
+    new Servicio
+    {
+        Id = 6,
+        Nombre = "Pizarra",
+        Activo = true
+    },
+    new Servicio
+    {
+        Id = 7,
+        Nombre = "Videoconferencia",
+        Activo = true
+    },
+    new Servicio
+    {
+        Id = 8,
+        Nombre = "Internet",
+        Activo = true
+    },
+    new Servicio
+    {
+        Id = 9,
+        Nombre = "Sin servicios adicionales",
+        Activo = true
+    }
+);
+
         // Usuario temporal hasta implementar Entra ID
         modelBuilder.Entity<Usuario>().HasData(
             new Usuario

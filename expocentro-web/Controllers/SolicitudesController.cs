@@ -133,6 +133,9 @@ public async Task<IActionResult> Details(int id)
         // NUEVO: cargar montajes
         .Include(x => x.Montajes)
             .ThenInclude(x => x.TipoMontaje)
+// NUEVO: servicios
+            .Include(x => x.Servicios)
+    .ThenInclude(x => x.Servicio)
 
         .FirstOrDefaultAsync(x =>
             x.Id == id &&
@@ -300,9 +303,179 @@ if (sinMontaje && seleccionados.Count > 1)
         "El montaje fue guardado correctamente.";
 
     return RedirectToAction(
+    nameof(Servicios),
+    new { id = solicitud.Id });
+}
+
+// CONFIGURAR SERVICIOS
+[HttpGet]
+public async Task<IActionResult> Servicios(int id)
+{
+    const int usuarioDemoId = 1;
+
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Estado)
+        .FirstOrDefaultAsync(x =>
+            x.Id == id &&
+            x.SolicitanteUsuarioId == usuarioDemoId);
+
+    if (solicitud == null)
+    {
+        return NotFound();
+    }
+
+    if (solicitud.Estado.Nombre != "Borrador")
+    {
+        TempData["Error"] =
+            "Solo se pueden modificar los servicios de una solicitud en borrador.";
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    var serviciosGuardados = await _context.SolicitudesServicio
+        .Where(x => x.SolicitudEventoId == id)
+        .ToListAsync();
+
+    var serviciosDisponibles = await _context.Servicios
+        .Where(x => x.Activo)
+        .OrderBy(x => x.Nombre)
+        .ToListAsync();
+
+    var model = new SolicitudServicioViewModel
+    {
+        SolicitudEventoId = solicitud.Id,
+        Codigo = solicitud.Codigo,
+        NombreEvento = solicitud.NombreEvento,
+
+        Servicios = serviciosDisponibles.Select(servicio =>
+        {
+            var existente = serviciosGuardados
+                .FirstOrDefault(x => x.ServicioId == servicio.Id);
+
+            return new ServicioItemViewModel
+            {
+                ServicioId = servicio.Id,
+                Nombre = servicio.Nombre,
+                Seleccionado = existente != null,
+                Cantidad = existente?.Cantidad ?? 1,
+                Observaciones = existente?.Observaciones
+            };
+        }).ToList()
+    };
+
+    return View(model);
+}
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Servicios(
+    SolicitudServicioViewModel model)
+{
+    const int usuarioDemoId = 1;
+
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Estado)
+        .FirstOrDefaultAsync(x =>
+            x.Id == model.SolicitudEventoId &&
+            x.SolicitanteUsuarioId == usuarioDemoId);
+
+    if (solicitud == null)
+    {
+        return NotFound();
+    }
+
+    if (solicitud.Estado.Nombre != "Borrador")
+    {
+        return RedirectToAction(
+            nameof(Details),
+            new { id = model.SolicitudEventoId });
+    }
+
+    var serviciosDisponibles = await _context.Servicios
+        .Where(x => x.Activo)
+        .ToDictionaryAsync(x => x.Id, x => x.Nombre);
+
+    var seleccionados = model.Servicios
+        .Where(x => x.Seleccionado)
+        .ToList();
+
+    if (!seleccionados.Any())
+    {
+        ModelState.AddModelError(
+            string.Empty,
+            "Debe seleccionar al menos un servicio o la opción 'Sin servicios adicionales'.");
+    }
+
+    var sinServiciosId = serviciosDisponibles
+        .FirstOrDefault(x => x.Value == "Sin servicios adicionales")
+        .Key;
+
+    if (seleccionados.Any(x => x.ServicioId == sinServiciosId)
+        && seleccionados.Count > 1)
+    {
+        ModelState.AddModelError(
+            string.Empty,
+            "Si selecciona 'Sin servicios adicionales', no puede seleccionar otros servicios.");
+    }
+
+    if (!ModelState.IsValid)
+    {
+        model.Codigo = solicitud.Codigo;
+        model.NombreEvento = solicitud.NombreEvento;
+
+        foreach (var item in model.Servicios)
+        {
+            if (serviciosDisponibles.TryGetValue(
+                item.ServicioId,
+                out var nombre))
+            {
+                item.Nombre = nombre;
+            }
+        }
+
+        return View(model);
+    }
+
+    var existentes = await _context.SolicitudesServicio
+        .Where(x => x.SolicitudEventoId == solicitud.Id)
+        .ToListAsync();
+
+    _context.SolicitudesServicio.RemoveRange(existentes);
+
+    foreach (var item in seleccionados)
+    {
+        if (!serviciosDisponibles.ContainsKey(item.ServicioId))
+        {
+            continue;
+        }
+
+        if (item.ServicioId == sinServiciosId)
+        {
+            item.Cantidad = 1;
+            item.Observaciones = null;
+        }
+
+        _context.SolicitudesServicio.Add(
+            new SolicitudServicio
+            {
+                SolicitudEventoId = solicitud.Id,
+                ServicioId = item.ServicioId,
+                Cantidad = item.Cantidad,
+                Observaciones = item.Observaciones
+            });
+    }
+
+    solicitud.FechaActualizacion = DateTimeOffset.UtcNow;
+
+    await _context.SaveChangesAsync();
+
+    TempData["Mensaje"] =
+        "Los servicios fueron guardados correctamente.";
+
+    return RedirectToAction(
         nameof(Details),
         new { id = solicitud.Id });
 }
+
 
 // ENVIAR SOLICITUD
 [HttpPost]
@@ -314,6 +487,7 @@ public async Task<IActionResult> Enviar(int id)
     var solicitud = await _context.SolicitudesEvento
         .Include(x => x.Estado)
         .Include(x => x.Montajes)
+        .Include(x => x.Servicios)
         .FirstOrDefaultAsync(x =>
             x.Id == id &&
             x.SolicitanteUsuarioId == usuarioDemoId);
@@ -335,6 +509,14 @@ public async Task<IActionResult> Enviar(int id)
 {
     TempData["Error"] =
         "Debe configurar el montaje antes de enviar la solicitud.";
+
+    return RedirectToAction(nameof(Details), new { id });
+}
+
+if (!solicitud.Servicios.Any())
+{
+    TempData["Error"] =
+        "Debe configurar los servicios antes de enviar la solicitud.";
 
     return RedirectToAction(nameof(Details), new { id });
 }

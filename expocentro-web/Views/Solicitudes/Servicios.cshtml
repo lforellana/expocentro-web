@@ -1,0 +1,198 @@
+@model Expocentro.Web.ViewModels.SolicitudServicioViewModel
+
+@{
+    ViewData["Title"] = "Servicios";
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <p class="text-muted mb-1">
+            @Model.Codigo
+        </p>
+
+        <h1 class="fw-bold">
+            Servicios requeridos
+        </h1>
+
+        <p class="text-muted">
+            @Model.NombreEvento
+        </p>
+    </div>
+
+    <div class="mb-4">
+        <div class="d-flex justify-content-between text-center">
+
+            <div class="flex-fill">
+                <strong>✓ Datos generales</strong>
+            </div>
+
+            <div class="flex-fill">
+                <strong>✓ Montaje</strong>
+            </div>
+
+            <div class="flex-fill text-primary">
+                <strong>3. Servicios</strong>
+            </div>
+
+            <div class="flex-fill text-muted">
+                4. Resumen
+            </div>
+
+        </div>
+    </div>
+
+    <form asp-action="Servicios" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="SolicitudEventoId" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+        <div class="row g-3">
+
+            @for (var i = 0; i < Model.Servicios.Count; i++)
+            {
+                var sinServicios =
+                    Model.Servicios[i].Nombre == "Sin servicios adicionales";
+
+                <div class="col-md-6 col-lg-4">
+
+                    <div class="card h-100 border shadow-sm">
+
+                        <div class="card-body">
+
+                            <input asp-for="Servicios[i].ServicioId"
+                                   type="hidden" />
+
+                            <input asp-for="Servicios[i].Nombre"
+                                   type="hidden" />
+
+                            <div class="form-check mb-3">
+
+                                <input asp-for="Servicios[i].Seleccionado"
+                                       class="form-check-input servicio-check"
+                                       data-sin-servicios="@(sinServicios ? "true" : "false")" />
+
+                                <label asp-for="Servicios[i].Seleccionado"
+                                       class="form-check-label fw-bold">
+
+                                    @Model.Servicios[i].Nombre
+
+                                </label>
+
+                            </div>
+
+                            @if (sinServicios)
+                            {
+                                <input asp-for="Servicios[i].Cantidad"
+                                       type="hidden"
+                                       value="1" />
+                            }
+                            else
+                            {
+                                <div>
+
+                                    <label class="form-label">
+                                        Cantidad
+                                    </label>
+
+                                    <input asp-for="Servicios[i].Cantidad"
+                                           class="form-control mb-3"
+                                           min="1" />
+
+                                    <label class="form-label">
+                                        Observaciones
+                                    </label>
+
+                                    <textarea asp-for="Servicios[i].Observaciones"
+                                              class="form-control"
+                                              rows="2"></textarea>
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+
+            <a asp-action="Montaje"
+               asp-route-id="@Model.SolicitudEventoId"
+               class="btn btn-outline-secondary">
+
+                ← Regresar a montaje
+
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                Guardar servicios
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const checks =
+                document.querySelectorAll(".servicio-check");
+
+            checks.forEach(check => {
+
+                check.addEventListener("change", function () {
+
+                    const esSinServicios =
+                        this.dataset.sinServicios === "true";
+
+                    if (esSinServicios && this.checked) {
+
+                        checks.forEach(other => {
+
+                            if (other !== this) {
+                                other.checked = false;
+                            }
+
+                        });
+
+                    }
+                    else if (this.checked) {
+
+                        checks.forEach(other => {
+
+                            if (other.dataset.sinServicios === "true") {
+                                other.checked = false;
+                            }
+
+                        });
+
+                    }
+
+                });
+
+            });
+
+        });
+
+    </script>
+
+}

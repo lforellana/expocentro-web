@@ -44,4 +44,7 @@ public class SolicitudEvento
 
     public ICollection<SolicitudMontaje> Montajes { get; set; }
     = new List<SolicitudMontaje>();
+
+    public ICollection<SolicitudServicio> Servicios { get; set; }
+    = new List<SolicitudServicio>();
 }
