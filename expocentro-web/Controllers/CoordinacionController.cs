@@ -1,6 +1,8 @@
 using Expocentro.Web.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Expocentro.Web.Models;
+using Expocentro.Web.ViewModels;
 
 namespace Expocentro.Web.Controllers;
 
@@ -44,7 +46,12 @@ public class CoordinacionController : Controller
             .Include(x => x.Servicios)
                 .ThenInclude(x => x.Servicio)
             .Include(x => x.Alimentacion)
+            .Include(x => x.HistorialEstados)
+                .ThenInclude(x => x.EstadoSolicitud)
             .FirstOrDefaultAsync(x => x.Id == id);
+            
+
+
 
         if (solicitud == null)
         {
@@ -78,10 +85,22 @@ public class CoordinacionController : Controller
         var nuevoEstado = await _context.EstadosSolicitud
             .FirstAsync(x => x.Nombre == "En revisión");
 
-        solicitud.EstadoId = nuevoEstado.Id;
-        solicitud.FechaActualizacion = DateTimeOffset.UtcNow;
+        var ahora = DateTimeOffset.UtcNow;
 
-        await _context.SaveChangesAsync();
+solicitud.EstadoId = nuevoEstado.Id;
+solicitud.FechaActualizacion = ahora;
+
+_context.HistorialEstadosSolicitud.Add(
+    new HistorialEstadoSolicitud
+    {
+        SolicitudEventoId = solicitud.Id,
+        EstadoSolicitudId = nuevoEstado.Id,
+        FechaCambio = ahora,
+        Actor = "Coordinación",
+        Comentario = "La solicitud fue tomada para revisión."
+    });
+
+await _context.SaveChangesAsync();
 
         TempData["Mensaje"] =
             "La solicitud está ahora en revisión.";
@@ -115,10 +134,22 @@ public class CoordinacionController : Controller
         var nuevoEstado = await _context.EstadosSolicitud
             .FirstAsync(x => x.Nombre == "Aprobada");
 
-        solicitud.EstadoId = nuevoEstado.Id;
-        solicitud.FechaActualizacion = DateTimeOffset.UtcNow;
+        var ahora = DateTimeOffset.UtcNow;
 
-        await _context.SaveChangesAsync();
+solicitud.EstadoId = nuevoEstado.Id;
+solicitud.FechaActualizacion = ahora;
+
+_context.HistorialEstadosSolicitud.Add(
+    new HistorialEstadoSolicitud
+    {
+        SolicitudEventoId = solicitud.Id,
+        EstadoSolicitudId = nuevoEstado.Id,
+        FechaCambio = ahora,
+        Actor = "Coordinación",
+        Comentario = "Solicitud aprobada."
+    });
+
+await _context.SaveChangesAsync();
 
         TempData["Mensaje"] =
             "La solicitud fue aprobada.";
@@ -129,39 +160,84 @@ public class CoordinacionController : Controller
     }
 
     // RECHAZAR
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Rechazar(int id)
+    // FORMULARIO DE RECHAZO
+[HttpGet]
+public async Task<IActionResult> Rechazar(int id)
+{
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Estado)
+        .FirstOrDefaultAsync(x => x.Id == id);
+
+    if (solicitud == null)
+        return NotFound();
+
+    if (solicitud.Estado.Nombre != "En revisión")
+        return RedirectToAction(nameof(Details), new { id });
+
+    var model = new RechazarSolicitudViewModel
     {
-        var solicitud = await _context.SolicitudesEvento
-            .Include(x => x.Estado)
-            .FirstOrDefaultAsync(x => x.Id == id);
+        SolicitudEventoId = solicitud.Id,
+        Codigo = solicitud.Codigo,
+        NombreEvento = solicitud.NombreEvento
+    };
 
-        if (solicitud == null)
-        {
-            return NotFound();
-        }
+    return View(model);
+}
 
-        if (solicitud.Estado.Nombre != "En revisión")
-        {
-            return RedirectToAction(
-                nameof(Details),
-                new { id });
-        }
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Rechazar(
+    RechazarSolicitudViewModel model)
+{
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Estado)
+        .FirstOrDefaultAsync(
+            x => x.Id == model.SolicitudEventoId);
 
-        var nuevoEstado = await _context.EstadosSolicitud
-            .FirstAsync(x => x.Nombre == "Rechazada");
+    if (solicitud == null)
+        return NotFound();
 
-        solicitud.EstadoId = nuevoEstado.Id;
-        solicitud.FechaActualizacion = DateTimeOffset.UtcNow;
-
-        await _context.SaveChangesAsync();
-
-        TempData["Mensaje"] =
-            "La solicitud fue rechazada.";
-
+    if (solicitud.Estado.Nombre != "En revisión")
         return RedirectToAction(
             nameof(Details),
-            new { id });
+            new { id = solicitud.Id });
+
+    if (!ModelState.IsValid)
+    {
+        model.Codigo = solicitud.Codigo;
+        model.NombreEvento = solicitud.NombreEvento;
+
+        return View(model);
     }
+
+    var nuevoEstado = await _context.EstadosSolicitud
+        .FirstAsync(x => x.Nombre == "Rechazada");
+
+    var ahora = DateTimeOffset.UtcNow;
+
+    solicitud.EstadoId = nuevoEstado.Id;
+    solicitud.FechaActualizacion = ahora;
+
+    _context.HistorialEstadosSolicitud.Add(
+        new HistorialEstadoSolicitud
+        {
+            SolicitudEventoId = solicitud.Id,
+            EstadoSolicitudId = nuevoEstado.Id,
+            FechaCambio = ahora,
+            Actor = "Coordinación",
+            Comentario = model.Motivo.Trim()
+        });
+
+    await _context.SaveChangesAsync();
+
+    TempData["Mensaje"] =
+        "La solicitud fue rechazada.";
+
+    return RedirectToAction(
+        nameof(Details),
+        new { id = solicitud.Id });
+}
+
+
+
 }

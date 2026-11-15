@@ -28,6 +28,10 @@ public DbSet<SolicitudServicio> SolicitudesServicio
     public DbSet<AlimentacionEvento> AlimentacionesEvento
     => Set<AlimentacionEvento>();
 
+    public DbSet<HistorialEstadoSolicitud> HistorialEstadosSolicitud
+    => Set<HistorialEstadoSolicitud>();
+
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -132,6 +136,23 @@ modelBuilder.Entity<AlimentacionEvento>()
     .HasIndex(x => x.SolicitudEventoId)
     .IsUnique();
     
+
+// ============================
+// HISTORIAL DE ESTADOS
+// ============================
+
+modelBuilder.Entity<HistorialEstadoSolicitud>()
+    .HasOne(x => x.SolicitudEvento)
+    .WithMany(x => x.HistorialEstados)
+    .HasForeignKey(x => x.SolicitudEventoId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+modelBuilder.Entity<HistorialEstadoSolicitud>()
+    .HasOne(x => x.EstadoSolicitud)
+    .WithMany()
+    .HasForeignKey(x => x.EstadoSolicitudId)
+    .OnDelete(DeleteBehavior.Restrict);
+
         // ============================
         // DATOS INICIALES
         // ============================

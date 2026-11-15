@@ -384,6 +384,80 @@
 
     </div>
 
+<!-- HISTORIAL -->
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <h5 class="fw-bold mb-4">
+            Historial de la solicitud
+        </h5>
+
+        @if (Model.HistorialEstados.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Actor</th>
+                            <th>Comentario</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    @foreach (var historial in
+                        Model.HistorialEstados
+                            .OrderByDescending(x => x.FechaCambio))
+                    {
+                        <tr>
+
+                            <td>
+                                @historial.FechaCambio
+                                    .ToLocalTime()
+                                    .ToString("dd/MM/yyyy hh:mm tt")
+                            </td>
+
+                            <td class="fw-semibold">
+                                @historial.EstadoSolicitud.Nombre
+                            </td>
+
+                            <td>
+                                @historial.Actor
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(
+                                    historial.Comentario)
+                                    ? "-"
+                                    : historial.Comentario)
+                            </td>
+
+                        </tr>
+                    }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">
+                No hay cambios de estado registrados.
+            </p>
+        }
+
+    </div>
+
+</div>
 
     <!-- ACCIONES -->
     <div class="d-flex justify-content-between align-items-center">
@@ -419,21 +493,13 @@
 
             @if (Model.Estado.Nombre == "En revisión")
             {
-                <form asp-action="Rechazar"
-                      asp-route-id="@Model.Id"
-                      method="post">
+                <a asp-action="Rechazar"
+   asp-route-id="@Model.Id"
+   class="btn btn-outline-danger">
 
-                    @Html.AntiForgeryToken()
+    Rechazar
 
-                    <button type="submit"
-                            class="btn btn-outline-danger"
-                            onclick="return confirm('¿Desea rechazar esta solicitud?');">
-
-                        Rechazar
-
-                    </button>
-
-                </form>
+</a>
 
 
                 <form asp-action="Aprobar"

@@ -168,6 +168,39 @@ namespace Expocentro.Web.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Expocentro.Web.Models.HistorialEstadoSolicitud", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Actor")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Comentario")
+                        .HasColumnType("text");
+
+                    b.Property<int>("EstadoSolicitudId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("FechaCambio")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SolicitudEventoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstadoSolicitudId");
+
+                    b.HasIndex("SolicitudEventoId");
+
+                    b.ToTable("HistorialEstadosSolicitud");
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.Salon", b =>
                 {
                     b.Property<int>("Id")
@@ -561,6 +594,25 @@ namespace Expocentro.Web.Migrations
                     b.Navigation("SolicitudEvento");
                 });
 
+            modelBuilder.Entity("Expocentro.Web.Models.HistorialEstadoSolicitud", b =>
+                {
+                    b.HasOne("Expocentro.Web.Models.EstadoSolicitud", "EstadoSolicitud")
+                        .WithMany()
+                        .HasForeignKey("EstadoSolicitudId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Expocentro.Web.Models.SolicitudEvento", "SolicitudEvento")
+                        .WithMany("HistorialEstados")
+                        .HasForeignKey("SolicitudEventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EstadoSolicitud");
+
+                    b.Navigation("SolicitudEvento");
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
                 {
                     b.HasOne("Expocentro.Web.Models.Departamento", "DepartamentoCargo")
@@ -665,6 +717,8 @@ namespace Expocentro.Web.Migrations
             modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
                 {
                     b.Navigation("Alimentacion");
+
+                    b.Navigation("HistorialEstados");
 
                     b.Navigation("Montajes");
 

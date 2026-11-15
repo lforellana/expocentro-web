@@ -16,6 +16,7 @@
 
 <div class="container py-5">
 
+    <!-- ENCABEZADO -->
     <div class="d-flex justify-content-between align-items-start mb-4">
 
         <div>
@@ -23,9 +24,13 @@
                 @Model.Codigo
             </p>
 
-            <h1 class="fw-bold">
+            <h1 class="fw-bold mb-1">
                 @Model.NombreEvento
             </h1>
+
+            <p class="text-muted mb-0">
+                Detalle de la solicitud
+            </p>
         </div>
 
         <span class="badge @badgeClass px-3 py-2">
@@ -34,6 +39,24 @@
 
     </div>
 
+
+    <!-- MENSAJES -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+
+    <!-- DATOS GENERALES -->
     <div class="card border-0 shadow-sm mb-4">
 
         <div class="card-body p-4">
@@ -41,286 +64,88 @@
             <h5 class="fw-bold mb-4">
                 Datos generales
             </h5>
-<div class="card border-0 shadow-sm mb-4">
 
-    <div class="card-body p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <h5 class="fw-bold mb-0">
-                Montaje
-            </h5>
-
-            @if (Model.Estado.Nombre == "Borrador")
-            {
-                <a asp-action="Montaje"
-                   asp-route-id="@Model.Id"
-                   class="btn btn-sm btn-outline-primary">
-
-                    Configurar montaje
-
-                </a>
-            }
-
-        </div>
-
-        @if (Model.Montajes.Any())
-        {
-            <div class="table-responsive">
-
-                <table class="table align-middle">
-
-                    <thead>
-                        <tr>
-                            <th>Tipo</th>
-                            <th>Cantidad</th>
-                            <th>Observaciones</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                    @foreach (var montaje in Model.Montajes)
-                    {
-                        <tr>
-                            <td class="fw-semibold">
-                                @montaje.TipoMontaje.Nombre
-                            </td>
-
-                            <td>
-                                @montaje.Cantidad
-                            </td>
-
-                            <td>
-                                @(string.IsNullOrWhiteSpace(montaje.Observaciones)
-                                    ? "-"
-                                    : montaje.Observaciones)
-                            </td>
-                        </tr>
-                    }
-
-                    </tbody>
-
-                </table>
-
-            </div>
-        }
-        else
-        {
-            <p class="text-muted mb-0">
-                No se ha configurado el montaje.
-            </p>
-        }
-
-    </div>
-
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-body p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <h5 class="fw-bold mb-0">
-                Servicios
-            </h5>
-
-            @if (Model.Estado.Nombre == "Borrador")
-            {
-                <a asp-action="Servicios"
-                   asp-route-id="@Model.Id"
-                   class="btn btn-sm btn-outline-primary">
-
-                    Configurar servicios
-
-                </a>
-            }
-
-        </div>
-
-        @if (Model.Servicios.Any())
-        {
-            <div class="table-responsive">
-
-                <table class="table align-middle">
-
-                    <thead>
-                        <tr>
-                            <th>Servicio</th>
-                            <th>Cantidad</th>
-                            <th>Observaciones</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                    @foreach (var servicio in Model.Servicios)
-                    {
-                        <tr>
-
-                            <td class="fw-semibold">
-                                @servicio.Servicio.Nombre
-                            </td>
-
-                            <td>
-                                @if (servicio.Servicio.Nombre ==
-                                    "Sin servicios adicionales")
-                                {
-                                    <span>-</span>
-                                }
-                                else
-                                {
-                                    @servicio.Cantidad
-                                }
-                            </td>
-
-                            <td>
-                                @(string.IsNullOrWhiteSpace(servicio.Observaciones)
-                                    ? "-"
-                                    : servicio.Observaciones)
-                            </td>
-
-                        </tr>
-                    }
-
-                    </tbody>
-
-                </table>
-
-            </div>
-        }
-        else
-        {
-            <p class="text-muted mb-0">
-                No se han configurado servicios.
-            </p>
-        }
-
-    </div>
-
-</div>
-
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-body p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <h5 class="fw-bold mb-0">
-                Alimentación
-            </h5>
-
-            @if (Model.Estado.Nombre == "Borrador")
-            {
-                <a asp-action="Alimentacion"
-                   asp-route-id="@Model.Id"
-                   class="btn btn-sm btn-outline-primary">
-
-                    Configurar alimentación
-
-                </a>
-            }
-
-        </div>
-
-        @if (Model.Alimentacion == null)
-        {
-            <p class="text-muted mb-0">
-                No se ha configurado la alimentación.
-            </p>
-        }
-        else if (!Model.Alimentacion.RequiereAlimentacion)
-        {
-            <p class="mb-0">
-                No requiere alimentación.
-            </p>
-        }
-        else
-        {
-            <div class="row g-3">
-
-                <div class="col-md-4">
-                    <small class="text-muted">
-                        Personas
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.Alimentacion.CantidadPersonas
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <small class="text-muted">
-                        Hora
-                    </small>
-
-                    <div class="fw-semibold">
-                        @(Model.Alimentacion.HoraServicio?.ToString("HH:mm") ?? "-")
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <small class="text-muted">
-                        Detalle
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.Alimentacion.Detalle
-                    </div>
-                </div>
-
-            </div>
-        }
-
-    </div>
-
-</div>
-
-</div>
             <div class="row g-4">
 
                 <div class="col-md-6">
-                    <small class="text-muted">Fecha de inicio</small>
+
+                    <small class="text-muted">
+                        Fecha de inicio
+                    </small>
+
                     <div class="fw-semibold">
                         @Model.FechaHoraInicio.ToString("dd/MM/yyyy hh:mm tt")
                     </div>
+
                 </div>
 
+
                 <div class="col-md-6">
-                    <small class="text-muted">Fecha de finalización</small>
+
+                    <small class="text-muted">
+                        Fecha de finalización
+                    </small>
+
                     <div class="fw-semibold">
                         @Model.FechaHoraFin.ToString("dd/MM/yyyy hh:mm tt")
                     </div>
+
                 </div>
 
+
                 <div class="col-md-6">
-                    <small class="text-muted">Salón</small>
+
+                    <small class="text-muted">
+                        Salón
+                    </small>
+
                     <div class="fw-semibold">
                         @Model.Salon.Nombre
                     </div>
+
                 </div>
 
+
                 <div class="col-md-6">
-                    <small class="text-muted">Cantidad de personas</small>
+
+                    <small class="text-muted">
+                        Cantidad de personas
+                    </small>
+
                     <div class="fw-semibold">
                         @Model.CantidadPersonas
                     </div>
+
                 </div>
 
+
                 <div class="col-md-6">
-                    <small class="text-muted">Solicitante</small>
+
+                    <small class="text-muted">
+                        Solicitante
+                    </small>
+
                     <div class="fw-semibold">
                         @Model.SolicitanteUsuario.Nombre
                     </div>
+
                 </div>
 
+
                 <div class="col-md-6">
-                    <small class="text-muted">Departamento</small>
+
+                    <small class="text-muted">
+                        Departamento
+                    </small>
+
                     <div class="fw-semibold">
                         @Model.DepartamentoCargo.Nombre
                     </div>
+
                 </div>
 
             </div>
+
 
             @if (!string.IsNullOrWhiteSpace(Model.Otros))
             {
@@ -330,18 +155,21 @@
                     Otros requerimientos
                 </small>
 
-                <p>
+                <p class="mb-0">
                     @Model.Otros
                 </p>
             }
 
+
             @if (!string.IsNullOrWhiteSpace(Model.Comentarios))
             {
+                <hr />
+
                 <small class="text-muted">
                     Comentarios
                 </small>
 
-                <p>
+                <p class="mb-0">
                     @Model.Comentarios
                 </p>
             }
@@ -350,24 +178,447 @@
 
     </div>
 
+
+    <!-- MONTAJE -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold mb-0">
+                    Montaje
+                </h5>
+
+                @if (Model.Estado.Nombre == "Borrador")
+                {
+                    <a asp-action="Montaje"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-sm btn-outline-primary">
+
+                        Configurar montaje
+
+                    </a>
+                }
+
+            </div>
+
+
+            @if (Model.Montajes.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        @foreach (var montaje in Model.Montajes)
+                        {
+                            var sinMontaje =
+                                montaje.TipoMontaje.Nombre == "Sin montaje";
+
+                            <tr>
+
+                                <td class="fw-semibold">
+                                    @montaje.TipoMontaje.Nombre
+                                </td>
+
+                                <td>
+                                    @(sinMontaje
+                                        ? "-"
+                                        : montaje.Cantidad)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(
+                                        montaje.Observaciones)
+                                        ? "-"
+                                        : montaje.Observaciones)
+                                </td>
+
+                            </tr>
+                        }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    No se ha configurado el montaje.
+                </p>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- SERVICIOS -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold mb-0">
+                    Servicios
+                </h5>
+
+                @if (Model.Estado.Nombre == "Borrador")
+                {
+                    <a asp-action="Servicios"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-sm btn-outline-primary">
+
+                        Configurar servicios
+
+                    </a>
+                }
+
+            </div>
+
+
+            @if (Model.Servicios.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>Servicio</th>
+                                <th>Cantidad</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        @foreach (var servicio in Model.Servicios)
+                        {
+                            var sinServicios =
+                                servicio.Servicio.Nombre ==
+                                "Sin servicios adicionales";
+
+                            <tr>
+
+                                <td class="fw-semibold">
+                                    @servicio.Servicio.Nombre
+                                </td>
+
+                                <td>
+                                    @(sinServicios
+                                        ? "-"
+                                        : servicio.Cantidad)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(
+                                        servicio.Observaciones)
+                                        ? "-"
+                                        : servicio.Observaciones)
+                                </td>
+
+                            </tr>
+                        }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    No se han configurado servicios.
+                </p>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- ALIMENTACIÓN -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold mb-0">
+                    Alimentación
+                </h5>
+
+                @if (Model.Estado.Nombre == "Borrador")
+                {
+                    <a asp-action="Alimentacion"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-sm btn-outline-primary">
+
+                        Configurar alimentación
+
+                    </a>
+                }
+
+            </div>
+
+
+            @if (Model.Alimentacion == null)
+            {
+                <p class="text-muted mb-0">
+                    No se ha configurado la alimentación.
+                </p>
+            }
+            else if (!Model.Alimentacion.RequiereAlimentacion)
+            {
+                <div class="alert alert-light border mb-0">
+                    El evento no requiere alimentación.
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted">
+                            Cantidad de personas
+                        </small>
+
+                        <div class="fw-semibold">
+                            @Model.Alimentacion.CantidadPersonas
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted">
+                            Hora de servicio
+                        </small>
+
+                        <div class="fw-semibold">
+                            @(Model.Alimentacion.HoraServicio?.ToString("HH:mm") ?? "-")
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted">
+                            Detalle / menú
+                        </small>
+
+                        <div class="fw-semibold">
+                            @(string.IsNullOrWhiteSpace(
+                                Model.Alimentacion.Detalle)
+                                ? "-"
+                                : Model.Alimentacion.Detalle)
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <hr />
+
+
+                <h6 class="fw-bold mb-3">
+                    Complementos
+                </h6>
+
+
+                <div class="d-flex gap-2 flex-wrap">
+
+                    @if (Model.Alimentacion.IncluyeAgua)
+                    {
+                        <span class="badge bg-light text-dark border">
+                            Agua
+                        </span>
+                    }
+
+                    @if (Model.Alimentacion.IncluyeCafe)
+                    {
+                        <span class="badge bg-light text-dark border">
+                            Café
+                        </span>
+                    }
+
+                    @if (Model.Alimentacion.IncluyeRefrigerio)
+                    {
+                        <span class="badge bg-light text-dark border">
+                            Refrigerio
+                        </span>
+                    }
+
+                    @if (!Model.Alimentacion.IncluyeAgua
+                        && !Model.Alimentacion.IncluyeCafe
+                        && !Model.Alimentacion.IncluyeRefrigerio)
+                    {
+                        <span class="text-muted">
+                            Sin complementos adicionales.
+                        </span>
+                    }
+
+                </div>
+
+
+                @if (!string.IsNullOrWhiteSpace(
+                    Model.Alimentacion.Observaciones))
+                {
+                    <div class="mt-4">
+
+                        <small class="text-muted">
+                            Observaciones
+                        </small>
+
+                        <p class="mb-0">
+                            @Model.Alimentacion.Observaciones
+                        </p>
+
+                    </div>
+                }
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- HISTORIAL -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-4">
+                Historial de la solicitud
+            </h5>
+
+
+            @if (Model.HistorialEstados.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Actor</th>
+                                <th>Comentario</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        @foreach (var item in Model.HistorialEstados
+                            .OrderByDescending(x => x.FechaCambio))
+                        {
+                            var historialBadge =
+                                item.EstadoSolicitud.Nombre switch
+                                {
+                                    "Borrador" => "bg-secondary",
+                                    "Enviada" => "bg-primary",
+                                    "En revisión" => "bg-warning text-dark",
+                                    "Aprobada" => "bg-success",
+                                    "Rechazada" => "bg-danger",
+                                    _ => "bg-secondary"
+                                };
+
+                            <tr>
+
+                                <td>
+                                    @(item.FechaCambio.ToOffset(TimeSpan.FromHours(-6))
+    .ToString("dd/MM/yyyy hh:mm tt"))
+                                </td>
+
+
+                                <td>
+
+                                    <span class="badge @historialBadge">
+
+                                        @item.EstadoSolicitud.Nombre
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+                                    @item.Actor
+                                </td>
+
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(
+                                        item.Comentario)
+                                        ? "-"
+                                        : item.Comentario)
+                                </td>
+
+                            </tr>
+                        }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    No hay historial registrado para esta solicitud.
+                </p>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- ACCIONES -->
     <div class="d-flex justify-content-between align-items-center">
 
-    <a asp-action="Index"
-       class="btn btn-outline-secondary">
-        ← Mis solicitudes
-    </a>
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
 
-    @if (Model.Estado.Nombre == "Borrador")
-{
-    <a asp-action="Resumen"
-       asp-route-id="@Model.Id"
-       class="btn btn-primary">
+            ← Mis solicitudes
 
-        Revisar y enviar
+        </a>
 
-    </a>
-}
 
-</div>
+        @if (Model.Estado.Nombre == "Borrador")
+        {
+            <a asp-action="Resumen"
+               asp-route-id="@Model.Id"
+               class="btn btn-primary">
+
+                Revisar y enviar
+
+            </a>
+        }
+
+    </div>
 
 </div>

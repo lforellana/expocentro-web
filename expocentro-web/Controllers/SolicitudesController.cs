@@ -110,6 +110,30 @@ public class SolicitudesController : Controller
 
 await _context.SaveChangesAsync();
 
+_context.HistorialEstadosSolicitud.Add(
+    new HistorialEstadoSolicitud
+    {
+        SolicitudEventoId = solicitud.Id,
+        EstadoSolicitudId = estadoBorrador.Id,
+        FechaCambio = DateTimeOffset.UtcNow,
+        Actor = "Solicitante",
+        Comentario = "Solicitud creada como borrador."
+    });
+
+await _context.SaveChangesAsync();
+
+_context.HistorialEstadosSolicitud.Add(
+    new HistorialEstadoSolicitud
+    {
+        SolicitudEventoId = solicitud.Id,
+        EstadoSolicitudId = estadoBorrador.Id,
+        FechaCambio = DateTimeOffset.UtcNow,
+        Actor = "Solicitante",
+        Comentario = "Solicitud creada como borrador."
+    });
+
+await _context.SaveChangesAsync();
+
 TempData["Mensaje"] =
     "Datos generales guardados correctamente.";
 
@@ -137,6 +161,8 @@ public async Task<IActionResult> Details(int id)
             .Include(x => x.Servicios)
     .ThenInclude(x => x.Servicio)
     .Include(x => x.Alimentacion)
+    .Include(x => x.HistorialEstados)
+    .ThenInclude(x => x.EstadoSolicitud)
 
         .FirstOrDefaultAsync(x =>
             x.Id == id &&
@@ -741,10 +767,22 @@ if (solicitud.Alimentacion == null)
     var estadoEnviada = await _context.EstadosSolicitud
         .FirstAsync(x => x.Nombre == "Enviada");
 
-    solicitud.EstadoId = estadoEnviada.Id;
-    solicitud.FechaActualizacion = DateTimeOffset.UtcNow;
+    var ahora = DateTimeOffset.UtcNow;
 
-    await _context.SaveChangesAsync();
+solicitud.EstadoId = estadoEnviada.Id;
+solicitud.FechaActualizacion = ahora;
+
+_context.HistorialEstadosSolicitud.Add(
+    new HistorialEstadoSolicitud
+    {
+        SolicitudEventoId = solicitud.Id,
+        EstadoSolicitudId = estadoEnviada.Id,
+        FechaCambio = ahora,
+        Actor = "Solicitante",
+        Comentario = "Solicitud enviada a Coordinación."
+    });
+
+await _context.SaveChangesAsync();
 
     TempData["Mensaje"] =
         "La solicitud fue enviada correctamente.";

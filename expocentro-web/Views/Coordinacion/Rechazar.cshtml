@@ -1,0 +1,83 @@
+@model Expocentro.Web.ViewModels.RechazarSolicitudViewModel
+
+@{
+    ViewData["Title"] = "Rechazar solicitud";
+}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7">
+
+            <p class="text-muted mb-1">
+                @Model.Codigo
+            </p>
+
+            <h1 class="fw-bold">
+                Rechazar solicitud
+            </h1>
+
+            <p class="text-muted mb-4">
+                @Model.NombreEvento
+            </p>
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body p-4">
+
+                    <form asp-action="Rechazar" method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input asp-for="SolicitudEventoId"
+                               type="hidden" />
+
+                        <div class="mb-4">
+
+                            <label asp-for="Motivo"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <textarea asp-for="Motivo"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="Explique por qué se rechaza la solicitud.">
+                            </textarea>
+
+                            <span asp-validation-for="Motivo"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+
+                            <a asp-action="Details"
+                               asp-route-id="@Model.SolicitudEventoId"
+                               class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                Rechazar solicitud
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

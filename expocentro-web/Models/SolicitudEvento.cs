@@ -49,4 +49,7 @@ public class SolicitudEvento
     = new List<SolicitudServicio>();
 
     public AlimentacionEvento? Alimentacion { get; set; }
+
+    public ICollection<HistorialEstadoSolicitud> HistorialEstados { get; set; }
+    = new List<HistorialEstadoSolicitud>();
 }
