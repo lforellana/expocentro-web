@@ -282,20 +282,15 @@
     </a>
 
     @if (Model.Estado.Nombre == "Borrador")
-    {
-        <form asp-action="Enviar"
-              asp-route-id="@Model.Id"
-              method="post">
+{
+    <a asp-action="Resumen"
+       asp-route-id="@Model.Id"
+       class="btn btn-primary">
 
-            @Html.AntiForgeryToken()
+        Revisar y enviar
 
-            <button type="submit"
-                    class="btn btn-success">
-                Enviar solicitud
-            </button>
-
-        </form>
-    }
+    </a>
+}
 
 </div>
 

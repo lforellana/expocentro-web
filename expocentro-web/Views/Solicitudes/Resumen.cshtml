@@ -1,0 +1,325 @@
+@model Expocentro.Web.Models.SolicitudEvento
+
+@{
+    ViewData["Title"] = "Resumen de solicitud";
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+
+        <p class="text-muted mb-1">
+            @Model.Codigo
+        </p>
+
+        <h1 class="fw-bold">
+            Resumen de solicitud
+        </h1>
+
+        <p class="text-muted">
+            Revisa la información antes de enviar la solicitud.
+        </p>
+
+    </div>
+
+    <!-- PROGRESO -->
+    <div class="mb-5">
+
+        <div class="d-flex justify-content-between text-center">
+
+            <div class="flex-fill">
+                <strong>✓ Datos generales</strong>
+            </div>
+
+            <div class="flex-fill">
+                <strong>✓ Montaje</strong>
+            </div>
+
+            <div class="flex-fill">
+                <strong>✓ Servicios</strong>
+            </div>
+
+            <div class="flex-fill text-primary">
+                <strong>4. Resumen</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DATOS GENERALES -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <h5 class="fw-bold mb-0">
+                    Datos generales
+                </h5>
+
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        Nombre del evento
+                    </small>
+
+                    <div class="fw-semibold">
+                        @Model.NombreEvento
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        Salón
+                    </small>
+
+                    <div class="fw-semibold">
+                        @Model.Salon.Nombre
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        Inicio
+                    </small>
+
+                    <div class="fw-semibold">
+                        @Model.FechaHoraInicio.ToString("dd/MM/yyyy hh:mm tt")
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        Finalización
+                    </small>
+
+                    <div class="fw-semibold">
+                        @Model.FechaHoraFin.ToString("dd/MM/yyyy hh:mm tt")
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        Cantidad de personas
+                    </small>
+
+                    <div class="fw-semibold">
+                        @Model.CantidadPersonas
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        Departamento
+                    </small>
+
+                    <div class="fw-semibold">
+                        @Model.DepartamentoCargo.Nombre
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MONTAJE -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold mb-0">
+                    Montaje
+                </h5>
+
+                <a asp-action="Montaje"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-sm btn-outline-primary">
+
+                    Editar
+
+                </a>
+
+            </div>
+
+
+            @if (Model.Montajes.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        @foreach (var montaje in Model.Montajes)
+                        {
+                            var sinMontaje =
+                                montaje.TipoMontaje.Nombre == "Sin montaje";
+
+                            <tr>
+
+                                <td class="fw-semibold">
+                                    @montaje.TipoMontaje.Nombre
+                                </td>
+
+                                <td>
+                                    @(sinMontaje
+                                        ? "-"
+                                        : montaje.Cantidad)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(
+                                        montaje.Observaciones)
+                                        ? "-"
+                                        : montaje.Observaciones)
+                                </td>
+
+                            </tr>
+                        }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- SERVICIOS -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold mb-0">
+                    Servicios
+                </h5>
+
+                <a asp-action="Servicios"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-sm btn-outline-primary">
+
+                    Editar
+
+                </a>
+
+            </div>
+
+
+            @if (Model.Servicios.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+                                <th>Servicio</th>
+                                <th>Cantidad</th>
+                                <th>Observaciones</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        @foreach (var servicio in Model.Servicios)
+                        {
+                            var sinServicios =
+                                servicio.Servicio.Nombre ==
+                                "Sin servicios adicionales";
+
+                            <tr>
+
+                                <td class="fw-semibold">
+                                    @servicio.Servicio.Nombre
+                                </td>
+
+                                <td>
+                                    @(sinServicios
+                                        ? "-"
+                                        : servicio.Cantidad)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(
+                                        servicio.Observaciones)
+                                        ? "-"
+                                        : servicio.Observaciones)
+                                </td>
+
+                            </tr>
+                        }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- ACCIONES -->
+    <div class="d-flex justify-content-between align-items-center">
+
+        <a asp-action="Servicios"
+           asp-route-id="@Model.Id"
+           class="btn btn-outline-secondary">
+
+            ← Regresar a servicios
+
+        </a>
+
+
+        <form asp-action="Enviar"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="btn btn-success px-4">
+
+                Enviar solicitud
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>

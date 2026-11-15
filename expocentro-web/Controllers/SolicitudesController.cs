@@ -469,11 +469,46 @@ public async Task<IActionResult> Servicios(
     await _context.SaveChangesAsync();
 
     TempData["Mensaje"] =
-        "Los servicios fueron guardados correctamente.";
+    "Los servicios fueron guardados correctamente.";
 
-    return RedirectToAction(
-        nameof(Details),
-        new { id = solicitud.Id });
+return RedirectToAction(
+    nameof(Resumen),
+    new { id = solicitud.Id });
+}
+
+
+// RESUMEN DE SOLICITUD
+[HttpGet]
+public async Task<IActionResult> Resumen(int id)
+{
+    const int usuarioDemoId = 1;
+
+    var solicitud = await _context.SolicitudesEvento
+        .Include(x => x.Salon)
+        .Include(x => x.Estado)
+        .Include(x => x.SolicitanteUsuario)
+        .Include(x => x.DepartamentoCargo)
+        .Include(x => x.Montajes)
+            .ThenInclude(x => x.TipoMontaje)
+        .Include(x => x.Servicios)
+            .ThenInclude(x => x.Servicio)
+        .FirstOrDefaultAsync(x =>
+            x.Id == id &&
+            x.SolicitanteUsuarioId == usuarioDemoId);
+
+    if (solicitud == null)
+    {
+        return NotFound();
+    }
+
+    if (solicitud.Estado.Nombre != "Borrador")
+    {
+        return RedirectToAction(
+            nameof(Details),
+            new { id });
+    }
+
+    return View(solicitud);
 }
 
 
