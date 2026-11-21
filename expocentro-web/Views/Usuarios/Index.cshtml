@@ -1,0 +1,63 @@
+@model List<Usuario>
+@{
+    ViewData["Title"] = "Usuarios";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Usuarios</h1>
+        <p>Los empleados se registran solos al iniciar sesión con su cuenta de Microsoft. Aquí asignas su departamento y rol.</p>
+    </div>
+</div>
+
+<partial name="_Alertas" />
+
+<form method="get" class="mb-3" style="max-width: 420px">
+    <div class="input-group">
+        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        <input class="form-control" name="texto" value="@ViewData["Texto"]" placeholder="Buscar por nombre o correo" />
+    </div>
+</form>
+
+<section class="ex-card">
+    <div class="table-responsive">
+        <table class="table table-ex">
+            <thead>
+                <tr><th>Nombre</th><th>Departamento</th><th>Rol</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr data-href="@Url.Action("Edit", new { id = u.Id })">
+                        <td>
+                            <div class="fw-semibold">@u.Nombre</div>
+                            <div class="small text-muted">@u.Correo</div>
+                        </td>
+                        <td>
+                            @if (u.DepartamentoId == UsuarioSincronizacionService.DepartamentoSinAsignarId)
+                            {
+                                <span class="estado estado-revision"><i class="bi bi-exclamation-circle"></i> Sin asignar</span>
+                            }
+                            else
+                            {
+                                @u.Departamento.Nombre
+                            }
+                        </td>
+                        <td>@u.Rol</td>
+                        <td>
+                            @if (u.Activo)
+                            {
+                                <span class="estado estado-aprobada">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="estado estado-cancelada">Inactivo</span>
+                            }
+                        </td>
+                        <td class="text-end"><a asp-action="Edit" asp-route-id="@u.Id" class="btn btn-sm btn-light">Editar</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

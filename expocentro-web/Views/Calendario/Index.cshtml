@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "Calendario de salones";
+    var salones = ViewData["Salones"] as List<Salon> ?? new();
+}
+
+<div class="page-header">
+    <div>
+        <h1>Calendario de salones</h1>
+        <p>Consulta la ocupación antes de solicitar un evento.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <select id="filtroSalon" class="form-select" style="min-width: 220px" aria-label="Filtrar por salón">
+            <option value="">Todos los salones</option>
+            @foreach (var s in salones)
+            {
+                <option value="@s.Id">@s.Nombre</option>
+            }
+        </select>
+        <a asp-controller="Solicitudes" asp-action="Create" class="btn btn-primary text-nowrap">
+            <i class="bi bi-plus-lg me-1"></i> Nueva solicitud
+        </a>
+    </div>
+</div>
+
+<section class="ex-card ex-card-body">
+    <div class="leyenda mb-3">
+        <span class="l-interno">Interno aprobado</span>
+        <span class="l-externo">Externo confirmado</span>
+        <span class="l-pendiente">Solicitud en trámite</span>
+    </div>
+    <div id="calendario"></div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@fullcalendar/core@6.1.15/locales/es.global.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const filtro = document.getElementById("filtroSalon");
+            const movil = window.matchMedia("(max-width: 768px)").matches;
+
+            const calendario = new FullCalendar.Calendar(document.getElementById("calendario"), {
+                locale: "es",
+                initialView: movil ? "listWeek" : "dayGridMonth",
+                headerToolbar: movil
+                    ? { left: "prev,next", center: "title", right: "today" }
+                    : { left: "prev,next today", center: "title", right: "dayGridMonth,timeGridWeek,listWeek" },
+                buttonText: { today: "Hoy", month: "Mes", week: "Semana", list: "Lista" },
+                height: "auto",
+                firstDay: 1,
+                nowIndicator: true,
+                slotMinTime: "06:00:00",
+                slotMaxTime: "23:00:00",
+                dayMaxEvents: 3,
+                eventTimeFormat: { hour: "numeric", minute: "2-digit", meridiem: "short" },
+                events: function (info, success, failure) {
+                    const params = new URLSearchParams({ start: info.startStr, end: info.endStr });
+                    if (filtro.value) params.append("salonId", filtro.value);
+
+                    fetch("@Url.Action("Eventos")?" + params.toString())
+                        .then(r => r.json())
+                        .then(success)
+                        .catch(failure);
+                },
+                eventDidMount: function (info) {
+                    const p = info.event.extendedProps;
+                    info.el.title = info.event.title + "\n" + p.estado + " · " + p.personas + " personas · " + p.codigo;
+                }
+            });
+
+            calendario.render();
+            filtro.addEventListener("change", () => calendario.refetchEvents());
+        });
+    </script>
+}

@@ -1,0 +1,33 @@
+@model IEnumerable<HistorialEstadoSolicitud>
+<section class="ex-card">
+    <div class="ex-card-header">
+        <h2><i class="bi bi-clock-history text-primary me-2"></i>Historial</h2>
+    </div>
+    <div class="ex-card-body">
+        @if (!Model.Any())
+        {
+            <p class="text-muted mb-0">Sin movimientos registrados.</p>
+        }
+        else
+        {
+            <ul class="timeline">
+                @foreach (var h in Model.OrderByDescending(x => x.FechaCambio).ThenByDescending(x => x.Id))
+                {
+                    <li>
+                        <span class="timeline-dot @Estados.ClaseBadge(h.EstadoSolicitud.Nombre)">
+                            <i class="bi @Estados.Icono(h.EstadoSolicitud.Nombre)"></i>
+                        </span>
+                        <div class="fw-semibold">@h.EstadoSolicitud.Nombre</div>
+                        @if (!string.IsNullOrWhiteSpace(h.Comentario))
+                        {
+                            <div class="small">@h.Comentario</div>
+                        }
+                        <div class="timeline-meta">
+                            @Fechas.ALocal(h.FechaCambio).ToString("dd/MM/yyyy hh:mm tt") · @h.Actor
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</section>

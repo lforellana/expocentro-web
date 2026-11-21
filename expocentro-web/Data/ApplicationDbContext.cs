@@ -47,6 +47,27 @@ public DbSet<SolicitudServicio> SolicitudesServicio
         .HasColumnType("timestamp without time zone");
 
 
+        // Eventos externos y referencia SAP
+        modelBuilder.Entity<SolicitudEvento>(e =>
+        {
+            e.Property(x => x.TipoEvento)
+                .HasDefaultValue(TipoEvento.Interno)
+                .HasSentinel(0);
+
+            e.Property(x => x.ClienteNombre).HasMaxLength(200);
+            e.Property(x => x.ClienteContacto).HasMaxLength(150);
+            e.Property(x => x.ClienteTelefono).HasMaxLength(50);
+            e.Property(x => x.ClienteCorreo).HasMaxLength(150);
+            e.Property(x => x.ReferenciaSap).HasMaxLength(50);
+
+            e.HasIndex(x => x.ReferenciaSap)
+                .IsUnique()
+                .HasFilter("\"ReferenciaSap\" IS NOT NULL");
+
+            // Búsqueda de choques de horario por salón
+            e.HasIndex(x => new { x.SalonId, x.FechaHoraInicio, x.FechaHoraFin });
+        });
+
         // Relaciones
         modelBuilder.Entity<SolicitudEvento>()
             .HasOne(x => x.SolicitanteUsuario)
@@ -181,6 +202,13 @@ modelBuilder.Entity<HistorialEstadoSolicitud>()
                 Id = 4,
                 Nombre = "Capacitaciones",
                 Activo = true
+            },
+            new Departamento
+            {
+                // Usuarios nuevos de Entra ID hasta que se les asigne uno
+                Id = 5,
+                Nombre = "Sin asignar",
+                Activo = true
             }
         );
 
@@ -234,6 +262,13 @@ modelBuilder.Entity<HistorialEstadoSolicitud>()
             {
                 Id = 5,
                 Nombre = "Rechazada",
+                Activo = true
+            },
+            new EstadoSolicitud
+            {
+                Id = 6,
+                Nombre = "Cancelada",
+                Descripcion = "Solicitud cancelada por el solicitante o Coordinación.",
                 Activo = true
             }
 
@@ -360,7 +395,12 @@ modelBuilder.Entity<Servicio>().HasData(
     }
 );
 
-        // Usuario temporal hasta implementar Entra ID
+        modelBuilder.Entity<Usuario>()
+            .HasIndex(x => x.EntraObjectId)
+            .IsUnique()
+            .HasFilter("\"EntraObjectId\" IS NOT NULL");
+
+        // Usuarios de prueba para el acceso de desarrollo (sin Entra ID)
         modelBuilder.Entity<Usuario>().HasData(
             new Usuario
             {
@@ -369,6 +409,24 @@ modelBuilder.Entity<Servicio>().HasData(
                 Correo = "usuario.demo@ccichonduras.org",
                 DepartamentoId = 1,
                 Rol = "Solicitante",
+                Activo = true
+            },
+            new Usuario
+            {
+                Id = 2,
+                Nombre = "Coordinador Demo",
+                Correo = "coordinador.demo@ccichonduras.org",
+                DepartamentoId = 2,
+                Rol = "Coordinador",
+                Activo = true
+            },
+            new Usuario
+            {
+                Id = 3,
+                Nombre = "Administrador Demo",
+                Correo = "admin.demo@ccichonduras.org",
+                DepartamentoId = 1,
+                Rol = "Administrador",
                 Activo = true
             }
         );

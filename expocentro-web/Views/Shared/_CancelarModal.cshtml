@@ -1,0 +1,28 @@
+@model (string Controlador, int Id, bool MotivoRequerido)
+<div class="modal fade" id="modalCancelar" tabindex="-1" aria-labelledby="modalCancelarTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" asp-controller="@Model.Controlador" asp-action="Cancelar" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="modalCancelarTitulo">Cancelar evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">
+                    El salón quedará liberado para otros eventos. Esta acción no se puede deshacer.
+                </p>
+                <label class="form-label" for="motivoCancelacion">
+                    Motivo @(Model.MotivoRequerido ? "" : "(opcional)")
+                </label>
+                <textarea class="form-control" id="motivoCancelacion" name="motivo" rows="3"
+                          maxlength="500" @(Model.MotivoRequerido ? "required" : "")></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Volver</button>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-slash-circle me-1"></i> Cancelar evento
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

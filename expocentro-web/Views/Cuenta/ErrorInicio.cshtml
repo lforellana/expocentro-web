@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "No se pudo iniciar sesión";
+    Layout = "_LayoutAcceso";
+    var desactivado = ViewData["Desactivado"] as bool? == true;
+}
+
+<div class="text-center">
+    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2.5rem"></i>
+    <h1 class="h5 fw-bold mt-2">No se pudo iniciar sesión</h1>
+
+    @if (desactivado)
+    {
+        <p class="text-muted">
+            Tu usuario está desactivado en el sistema de gestión de eventos.
+            Comunícate con el administrador del sistema (TI) si necesitas acceso.
+        </p>
+    }
+    else
+    {
+        <p class="text-muted">
+            Ocurrió un problema al validar tu cuenta de Microsoft. Intenta de nuevo;
+            si el problema continúa, avisa al administrador del sistema (TI).
+        </p>
+        <a asp-action="Entrar" class="btn btn-primary w-100">
+            <i class="bi bi-microsoft me-1"></i> Intentar de nuevo
+        </a>
+    }
+</div>

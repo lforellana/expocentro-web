@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · Expocentro</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <main class="acceso">
+        <div class="acceso-card">
+            <div class="text-center text-white mb-4">
+                <span class="app-brand-logo d-inline-grid mb-2" style="width:52px;height:52px;font-size:1.5rem">E</span>
+                <div class="fs-4 fw-bold">Expocentro</div>
+                <div style="color:#8ea3c2">Gestión de eventos · CCIC</div>
+            </div>
+            <div class="ex-card ex-card-body p-4">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+</body>
+</html>

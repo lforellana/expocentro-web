@@ -1,115 +1,158 @@
-@model IEnumerable<Expocentro.Web.Models.SolicitudEvento>
-
+@model BandejaCoordinacionViewModel
 @{
-    ViewData["Title"] = "Coordinación de eventos";
+    ViewData["Title"] = "Bandeja de Coordinación";
+    var vista = string.IsNullOrEmpty(Model.Vista) ? "pendientes" : Model.Vista;
+    var hayFiltros = Model.Tipo.HasValue || Model.SalonId.HasValue
+        || !string.IsNullOrWhiteSpace(Model.Texto) || Model.Desde.HasValue || Model.Hasta.HasValue;
+
+    string UrlVista(string v) => Url.Action("Index", new
+    {
+        vista = v,
+        tipo = Model.Tipo,
+        salonId = Model.SalonId,
+        texto = Model.Texto,
+        desde = Model.Desde?.ToString("yyyy-MM-dd"),
+        hasta = Model.Hasta?.ToString("yyyy-MM-dd")
+    })!;
 }
 
-<div class="container py-5">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <div>
-            <h1 class="fw-bold mb-1">
-                Coordinación de eventos
-            </h1>
-
-            <p class="text-muted mb-0">
-                Solicitudes enviadas para revisión.
-            </p>
-        </div>
-
+<div class="page-header">
+    <div>
+        <h1>Bandeja de Coordinación</h1>
+        <p>Revisa, aprueba o rechaza solicitudes y administra los eventos externos.</p>
     </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Calendario" asp-action="Index" class="btn btn-light">
+            <i class="bi bi-calendar3 me-1"></i> Calendario
+        </a>
+        <a asp-controller="EventosExternos" asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-building-add me-1"></i> Evento externo
+        </a>
+    </div>
+</div>
 
-    @if (TempData["Mensaje"] != null)
+<partial name="_Alertas" />
+
+<div class="ex-tabs">
+    @foreach (var (clave, texto) in BandejaCoordinacionViewModel.Vistas)
     {
-        <div class="alert alert-success">
-            @TempData["Mensaje"]
-        </div>
+        <a class="@(clave == vista ? "active" : "")" href="@UrlVista(clave)">
+            @texto <span class="badge">@Model.Conteos.GetValueOrDefault(clave)</span>
+        </a>
     }
+</div>
 
-    <div class="card border-0 shadow-sm">
+<form method="get" asp-action="Index" class="ex-card ex-card-body mb-3 py-3">
+    <input type="hidden" name="vista" value="@vista" />
+    <div class="row g-2 align-items-end">
+        <div class="col-lg-4">
+            <label class="form-label small" for="texto">Buscar</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input class="form-control" id="texto" name="texto" value="@Model.Texto" placeholder="Evento, código, solicitante, cliente o SAP" />
+            </div>
+        </div>
+        <div class="col-6 col-lg-2">
+            <label class="form-label small" for="tipo">Tipo</label>
+            <select class="form-select" id="tipo" name="tipo">
+                <option value="">Todos</option>
+                <option value="Interno" selected="@(Model.Tipo == TipoEvento.Interno)">Internos</option>
+                <option value="Externo" selected="@(Model.Tipo == TipoEvento.Externo)">Externos</option>
+            </select>
+        </div>
+        <div class="col-6 col-lg-2">
+            <label class="form-label small" for="salonId">Salón</label>
+            <select class="form-select" id="salonId" name="salonId">
+                <option value="">Todos</option>
+                @foreach (var s in Model.Salones)
+                {
+                    <option value="@s.Value" selected="@(s.Value == Model.SalonId?.ToString())">@s.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-6 col-lg-1">
+            <label class="form-label small" for="desde">Desde</label>
+            <input type="date" class="form-control px-2" id="desde" name="desde" value="@Model.Desde?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-6 col-lg-1">
+            <label class="form-label small" for="hasta">Hasta</label>
+            <input type="date" class="form-control px-2" id="hasta" name="hasta" value="@Model.Hasta?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-lg-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">Filtrar</button>
+            @if (hayFiltros)
+            {
+                <a class="btn btn-light" asp-action="Index" asp-route-vista="@vista" title="Limpiar filtros"><i class="bi bi-x-lg"></i></a>
+            }
+        </div>
+    </div>
+</form>
 
+<section class="ex-card">
+    @if (Model.Solicitudes.Any())
+    {
         <div class="table-responsive">
-
-            <table class="table table-hover align-middle mb-0">
-
-                <thead class="table-light">
-
+            <table class="table table-ex">
+                <thead>
                     <tr>
-                        <th>Código</th>
                         <th>Evento</th>
-                        <th>Solicitante</th>
-                        <th>Departamento</th>
                         <th>Fecha</th>
                         <th>Salón</th>
+                        <th>Solicitante / cliente</th>
                         <th>Estado</th>
-                        <th>Acciones</th>
+                        <th></th>
                     </tr>
-
                 </thead>
-
                 <tbody>
-
-                @foreach (var solicitud in Model)
-                {
-                    var badgeClass = solicitud.Estado.Nombre switch
+                    @foreach (var s in Model.Solicitudes)
                     {
-                        "Enviada" => "bg-primary",
-                        "En revisión" => "bg-warning text-dark",
-                        "Aprobada" => "bg-success",
-                        "Rechazada" => "bg-danger",
-                        _ => "bg-secondary"
-                    };
-
-                    <tr>
-
-                        <td>
-                            @solicitud.Codigo
-                        </td>
-
-                        <td class="fw-semibold">
-                            @solicitud.NombreEvento
-                        </td>
-
-                        <td>
-                            @solicitud.SolicitanteUsuario.Nombre
-                        </td>
-
-                        <td>
-                            @solicitud.DepartamentoCargo.Nombre
-                        </td>
-
-                        <td>
-                            @solicitud.FechaHoraInicio.ToString("dd/MM/yyyy")
-                        </td>
-
-                        <td>
-                            @solicitud.Salon.Nombre
-                        </td>
-
-                        <td>
-                            <span class="badge @badgeClass">
-                                @solicitud.Estado.Nombre
-                            </span>
-                        </td>
-
-                        <td>
-                            <a asp-action="Details"
-                               asp-route-id="@solicitud.Id"
-                               class="btn btn-sm btn-outline-primary">
-                                Revisar
-                            </a>
-                        </td>
-
-                    </tr>
-                }
-
+                        var esExterno = s.TipoEvento == TipoEvento.Externo;
+                        <tr data-href="@Url.Action("Details", new { id = s.Id })">
+                            <td>
+                                <div class="fw-semibold">@s.NombreEvento</div>
+                                <div class="small text-muted">
+                                    <partial name="_TipoEvento" model="s.TipoEvento" /> @s.Codigo
+                                    @if (!string.IsNullOrEmpty(s.ReferenciaSap))
+                                    {
+                                        <span>· SAP @s.ReferenciaSap</span>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-nowrap small">@Fechas.Rango(s.FechaHoraInicio, s.FechaHoraFin)</td>
+                            <td>
+                                @s.Salon.Nombre
+                                <div class="small text-muted">@s.CantidadPersonas personas</div>
+                            </td>
+                            <td>
+                                @if (esExterno)
+                                {
+                                    <div>@s.ClienteNombre</div>
+                                    <div class="small text-muted">Reg. por @s.SolicitanteUsuario.Nombre</div>
+                                }
+                                else
+                                {
+                                    <div>@s.SolicitanteUsuario.Nombre</div>
+                                    <div class="small text-muted">@s.DepartamentoCargo.Nombre</div>
+                                }
+                            </td>
+                            <td><partial name="_EstadoBadge" model="s.Estado.Nombre" /></td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm @(s.Estado.Nombre == Estados.Enviada ? "btn-primary" : "btn-light")">
+                                    @(s.Estado.Nombre is Estados.Enviada or Estados.EnRevision ? "Revisar" : "Ver")
+                                </a>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
-
             </table>
-
         </div>
-
-    </div>
-
-</div>
+    }
+    else
+    {
+        <div class="vacio">
+            <i class="bi bi-check2-all"></i>
+            <h3>@(vista == "pendientes" && !hayFiltros ? "¡Todo al día!" : "Sin resultados")</h3>
+            <p>@(vista == "pendientes" && !hayFiltros ? "No hay solicitudes pendientes de revisión." : "Ajusta los filtros para ver otros eventos.")</p>
+        </div>
+    }
+</section>

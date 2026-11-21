@@ -1,0 +1,145 @@
+@model EventoExternoViewModel
+@{
+    ViewData["Title"] = Model.EsEdicion ? "Editar evento externo" : "Registrar evento externo";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">
+            <a asp-controller="Coordinacion" asp-action="Index" class="text-decoration-none"><i class="bi bi-arrow-left"></i> Bandeja</a>
+            @if (Model.EsEdicion)
+            {
+                <span>· @Model.Codigo</span>
+            }
+        </div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Reserva confirmada de un cliente externo. El salón quedará bloqueado para ese horario.</p>
+    </div>
+</div>
+
+<form asp-action="@(Model.EsEdicion ? "Edit" : "Create")" method="post"
+      data-disponibilidad="@Url.Action("Disponibilidad", "Calendario")"
+      data-excluir-id="@Model.Id">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <section class="ex-card mb-4">
+                <div class="ex-card-body">
+                    <h2 class="ex-section-title"><i class="bi bi-building"></i> Cliente</h2>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label asp-for="ClienteNombre" class="form-label"></label>
+                            <input asp-for="ClienteNombre" class="form-control" autofocus />
+                            <span asp-validation-for="ClienteNombre" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ReferenciaSap" class="form-label"></label>
+                            <input asp-for="ReferenciaSap" class="form-control" placeholder="Opcional" />
+                            <span asp-validation-for="ReferenciaSap" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ClienteContacto" class="form-label"></label>
+                            <input asp-for="ClienteContacto" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ClienteTelefono" class="form-label"></label>
+                            <input asp-for="ClienteTelefono" class="form-control" />
+                            <span asp-validation-for="ClienteTelefono" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ClienteCorreo" class="form-label"></label>
+                            <input asp-for="ClienteCorreo" class="form-control" />
+                            <span asp-validation-for="ClienteCorreo" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="ex-card mb-4">
+                <div class="ex-card-body">
+                    <h2 class="ex-section-title"><i class="bi bi-calendar-event"></i> Evento</h2>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label asp-for="NombreEvento" class="form-label"></label>
+                            <input asp-for="NombreEvento" class="form-control" />
+                            <span asp-validation-for="NombreEvento" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="CantidadPersonas" class="form-label"></label>
+                            <input asp-for="CantidadPersonas" class="form-control" min="1" />
+                            <span asp-validation-for="CantidadPersonas" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="SalonId" class="form-label"></label>
+                            <select asp-for="SalonId" asp-items="Model.Salones" class="form-select">
+                                <option value="0">Seleccione un salón…</option>
+                            </select>
+                            <span asp-validation-for="SalonId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label asp-for="FechaInicio" class="form-label"></label>
+                            <input asp-for="FechaInicio" class="form-control" />
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label asp-for="HoraInicio" class="form-label"></label>
+                            <input asp-for="HoraInicio" class="form-control" step="900" />
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label asp-for="FechaFin" class="form-label"></label>
+                            <input asp-for="FechaFin" class="form-control" />
+                            <span asp-validation-for="FechaFin" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label asp-for="HoraFin" class="form-label"></label>
+                            <input asp-for="HoraFin" class="form-control" step="900" />
+                        </div>
+                        <div class="col-12">
+                            <div id="disponibilidad" class="disp-box" aria-live="polite"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="ex-card">
+                <div class="ex-card-body">
+                    <h2 class="ex-section-title"><i class="bi bi-list-check"></i> Logística</h2>
+                    <div class="mb-3">
+                        <label asp-for="Otros" class="form-label"></label>
+                        <textarea asp-for="Otros" class="form-control" rows="4"
+                                  placeholder="Montaje, audiovisuales, alimentación y demás detalles acordados con el cliente."></textarea>
+                    </div>
+                    <div>
+                        <label asp-for="Comentarios" class="form-label"></label>
+                        <textarea asp-for="Comentarios" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-acciones">
+                <a asp-controller="Coordinacion" asp-action="@(Model.EsEdicion ? "Details" : "Index")" asp-route-id="@Model.Id" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg me-1"></i> @(Model.EsEdicion ? "Guardar cambios" : "Registrar reserva")
+                </button>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="ex-card ex-card-body">
+                <h2 class="ex-section-title"><i class="bi bi-diagram-3"></i> Integración con SAP</h2>
+                <p class="small text-muted mb-2">
+                    Por ahora los eventos externos se registran manualmente. Ingresa el número de cotización o pedido de SAP
+                    para que, en una fase posterior, la sincronización automática pueda vincularlos sin duplicarlos.
+                </p>
+                <p class="small text-muted mb-0">La referencia SAP debe ser única.</p>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

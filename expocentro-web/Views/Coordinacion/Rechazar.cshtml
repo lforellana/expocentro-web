@@ -1,81 +1,40 @@
-@model Expocentro.Web.ViewModels.RechazarSolicitudViewModel
-
+@model RechazarSolicitudViewModel
 @{
     ViewData["Title"] = "Rechazar solicitud";
 }
 
-<div class="container py-5">
-
-    <div class="row justify-content-center">
-
-        <div class="col-lg-7">
-
-            <p class="text-muted mb-1">
-                @Model.Codigo
-            </p>
-
-            <h1 class="fw-bold">
-                Rechazar solicitud
-            </h1>
-
-            <p class="text-muted mb-4">
-                @Model.NombreEvento
-            </p>
-
-            <div class="card border-0 shadow-sm">
-
-                <div class="card-body p-4">
-
-                    <form asp-action="Rechazar" method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <input asp-for="SolicitudEventoId"
-                               type="hidden" />
-
-                        <div class="mb-4">
-
-                            <label asp-for="Motivo"
-                                   class="form-label fw-semibold">
-                            </label>
-
-                            <textarea asp-for="Motivo"
-                                      class="form-control"
-                                      rows="5"
-                                      placeholder="Explique por qué se rechaza la solicitud.">
-                            </textarea>
-
-                            <span asp-validation-for="Motivo"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-
-                            <a asp-action="Details"
-                               asp-route-id="@Model.SolicitudEventoId"
-                               class="btn btn-outline-secondary">
-                                Cancelar
-                            </a>
-
-                            <button type="submit"
-                                    class="btn btn-danger">
-                                Rechazar solicitud
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
-            </div>
-
+<div class="page-header">
+    <div>
+        <div class="page-kicker">
+            <a asp-action="Details" asp-route-id="@Model.SolicitudEventoId" class="text-decoration-none"><i class="bi bi-arrow-left"></i> Volver</a>
+            · @Model.Codigo
         </div>
-
+        <h1>Rechazar solicitud</h1>
+        <p>@Model.NombreEvento</p>
     </div>
+</div>
 
+<div class="row">
+    <div class="col-lg-8 col-xl-6">
+        <form asp-action="Rechazar" method="post" class="ex-card ex-card-body">
+            <input asp-for="SolicitudEventoId" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <label asp-for="Motivo" class="form-label"></label>
+            <textarea asp-for="Motivo" class="form-control" rows="5" autofocus
+                      placeholder="Explica el motivo y, si es posible, sugiere otra fecha o salón disponible."></textarea>
+            <span asp-validation-for="Motivo" class="text-danger small"></span>
+            <div class="form-text">El solicitante verá este mensaje en el historial de su solicitud.</div>
+
+            <div class="form-acciones">
+                <a asp-action="Details" asp-route-id="@Model.SolicitudEventoId" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-danger px-4">
+                    <i class="bi bi-x-circle me-1"></i> Confirmar rechazo
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {

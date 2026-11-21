@@ -1,0 +1,32 @@
+@model ResultadoDisponibilidad
+@if (Model.Conflictos.Any())
+{
+    var bloqueado = Model.HayConflictoConfirmado;
+
+    <div class="alert @(bloqueado ? "alert-danger" : "alert-warning")">
+        <div class="fw-semibold mb-1">
+            <i class="bi @(bloqueado ? "bi-x-octagon" : "bi-exclamation-triangle") me-1"></i>
+            @(bloqueado
+                ? "El salón ya está reservado en este horario."
+                : "Hay otras solicitudes en trámite para este salón y horario.")
+        </div>
+        <ul class="mb-0 small">
+            @foreach (var c in Model.Conflictos)
+            {
+                <li>
+                    <strong>@c.NombreEvento</strong> (@c.Codigo) ·
+                    @Fechas.Rango(c.Inicio, c.Fin) ·
+                    @c.Estado
+                    @if (c.TipoEvento == TipoEvento.Externo)
+                    {
+                        <span>· externo</span>
+                    }
+                </li>
+            }
+        </ul>
+        @if (!bloqueado)
+        {
+            <div class="small mt-2">Coordinación decidirá cuál se aprueba primero.</div>
+        }
+    </div>
+}

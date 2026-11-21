@@ -1,292 +1,152 @@
-﻿@model Expocentro.Web.ViewModels.HomeDashboardViewModel
-
+﻿@model HomeDashboardViewModel
 @{
     ViewData["Title"] = "Inicio";
+    var primerNombre = Model.NombreUsuario.Split(' ')[0];
 }
 
-<div class="container py-4">
-
-    <!-- BANNER PRINCIPAL -->
-
-    <section class="dashboard-hero mb-4">
-
-        <div class="dashboard-hero-overlay"></div>
-
-        <div class="dashboard-hero-content">
-
-            <span class="badge bg-light text-dark mb-3">
-                Expocentro · CCIC
-            </span>
-
-            <h1 class="fw-bold text-white mb-2">
-                Gestión de eventos internos
-            </h1>
-
-            <p class="text-white mb-1 fs-5">
-                Bienvenido, @Model.NombreUsuario
-            </p>
-
-            <p class="text-white-50 mb-4">
-                Registra y da seguimiento a tus solicitudes
-                de eventos internos.
-            </p>
-
-            <div class="d-flex flex-wrap gap-2">
-
-                <a asp-controller="Solicitudes"
-                   asp-action="Create"
-                   class="btn btn-primary btn-lg">
-
-                    + Solicitar nuevo evento
-
-                </a>
-
-                <a asp-controller="Solicitudes"
-                   asp-action="Index"
-                   class="btn btn-light btn-lg">
-
-                    Mis solicitudes
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- RESUMEN -->
-
-   <div class="row g-3 mb-4">
-
-    <div class="col-md-6 col-xl">
-
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <p class="text-muted mb-2">
-                    Total
-                </p>
-
-                <div class="display-6 fw-bold">
-                    @Model.TotalSolicitudes
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="col-md-6 col-xl">
-
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <p class="text-muted mb-2">
-                    Borradores
-                </p>
-
-                <div class="display-6 fw-bold text-secondary">
-                    @Model.TotalBorradores
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
-
-    <!-- ACCESOS RÁPIDOS -->
-
-    <div class="row g-3 mb-5">
-
-        <div class="col-md-6">
-
-            <a asp-controller="Solicitudes"
-               asp-action="Create"
-               class="text-decoration-none text-dark">
-
-                <div class="card dashboard-action-card
-                            border-0 shadow-sm h-100">
-
-                    <div class="card-body p-4">
-
-                        <div class="fs-2 mb-3">
-                            +
-                        </div>
-
-                        <h2 class="h5 fw-bold">
-                            Nueva solicitud
-                        </h2>
-
-                        <p class="text-muted mb-0">
-                            Registra una nueva solicitud
-                            de evento interno.
-                        </p>
-
-                    </div>
-
-                </div>
-
+<section class="hero">
+    <div class="hero-content">
+        <span class="badge bg-light text-dark mb-3">Expocentro · CCIC</span>
+        <h1>Hola, @primerNombre</h1>
+        <p class="mb-4">
+            Reserva salones para tus eventos internos y da seguimiento a cada solicitud en un solo lugar.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-controller="Solicitudes" asp-action="Create" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-lg me-1"></i> Nueva solicitud
             </a>
-
-        </div>
-
-
-        <div class="col-md-6">
-
-            <a asp-controller="Solicitudes"
-               asp-action="Index"
-               class="text-decoration-none text-dark">
-
-                <div class="card dashboard-action-card
-                            border-0 shadow-sm h-100">
-
-                    <div class="card-body p-4">
-
-                        <div class="fs-2 mb-3">
-                            ≡
-                        </div>
-
-                        <h2 class="h5 fw-bold">
-                            Mis solicitudes
-                        </h2>
-
-                        <p class="text-muted mb-0">
-                            Consulta el estado de los eventos
-                            que has registrado.
-                        </p>
-
-                    </div>
-
-                </div>
-
+            <a asp-controller="Calendario" asp-action="Index" class="btn btn-light btn-lg">
+                <i class="bi bi-calendar3 me-1"></i> Ver disponibilidad
             </a>
-
         </div>
-
     </div>
+</section>
 
+<partial name="_Alertas" />
 
-    <!-- SOLICITUDES RECIENTES -->
-
-    <div class="d-flex justify-content-between
-                align-items-center mb-3">
-
-        <div>
-
-            <h2 class="h4 fw-bold mb-1">
-                Solicitudes recientes
-            </h2>
-
-            <p class="text-muted mb-0">
-                Últimos eventos registrados.
-            </p>
-
-        </div>
-
-        <a asp-controller="Solicitudes"
-           asp-action="Index"
-           class="btn btn-outline-primary">
-
-            Ver todas
-
-        </a>
-
-    </div>
-
-
-    <div class="card border-0 shadow-sm">
-
-        @if (Model.SolicitudesRecientes.Any())
-        {
-            <div class="table-responsive">
-
-                <table class="table table-hover
-                              align-middle mb-0">
-
-                    <thead class="table-light">
-
-                        <tr>
-                            <th>Código</th>
-                            <th>Evento</th>
-                            <th>Fecha</th>
-                            <th>Salón</th>
-                            <th>Estado</th>
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                    @foreach (var solicitud in Model.SolicitudesRecientes)
+@if (Model.EsCoordinador)
 {
-    var estadoTexto = solicitud.Estado.Nombre;
-
-    var badgeClass = estadoTexto switch
-    {
-        "Borrador" => "bg-secondary",
-        "Enviada" => "bg-primary",
-        "En revisión" => "bg-warning text-dark",
-        "Aprobada" => "bg-success",
-        "Rechazada" => "bg-danger",
-        _ => "bg-dark"
-    };
-
-    <tr>
-        <td>
-            @solicitud.Codigo
-        </td>
-
-        <td class="fw-semibold">
-            @solicitud.NombreEvento
-        </td>
-
-        <td>
-            @solicitud.FechaHoraInicio.ToString("dd/MM/yyyy")
-        </td>
-
-        <td>
-            @solicitud.Salon.Nombre
-        </td>
-
-        <td>
-            <span class="badge @badgeClass px-3 py-2">
-                @estadoTexto
-            </span>
-        </td>
-    </tr>
-}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-        }
-        else
-        {
-            <div class="card-body text-center py-5">
-
-                <h3 class="h5">
-                    Todavía no tienes solicitudes
-                </h3>
-
-                <p class="text-muted">
-                    Registra tu primer evento interno
-                    para comenzar.
-                </p>
-
-                <a asp-controller="Solicitudes"
-                   asp-action="Create"
-                   class="btn btn-primary">
-
-                    + Nueva solicitud
-
-                </a>
-
-            </div>
-        }
-
+    <h2 class="h6 text-uppercase text-muted fw-bold mb-3">Coordinación</h2>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <a class="stat-card" asp-controller="Coordinacion" asp-action="Index" asp-route-vista="pendientes">
+                <span class="stat-icon bg-soft-primary"><i class="bi bi-inbox"></i></span>
+                <div><div class="stat-value">@Model.PorRevisar</div><div class="stat-label">Nuevas por revisar</div></div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <a class="stat-card" asp-controller="Coordinacion" asp-action="Index" asp-route-vista="pendientes">
+                <span class="stat-icon bg-soft-warning"><i class="bi bi-hourglass-split"></i></span>
+                <div><div class="stat-value">@Model.EnRevision</div><div class="stat-label">En revisión</div></div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <a class="stat-card" asp-controller="Coordinacion" asp-action="Index" asp-route-vista="aprobadas">
+                <span class="stat-icon bg-soft-success"><i class="bi bi-calendar-check"></i></span>
+                <div><div class="stat-value">@Model.ProximosEventos.Count</div><div class="stat-label">Eventos próximos 7 días</div></div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <a class="stat-card" asp-controller="EventosExternos" asp-action="Create">
+                <span class="stat-icon bg-soft-secondary"><i class="bi bi-building-add"></i></span>
+                <div><div class="fw-semibold">Registrar evento externo</div><div class="stat-label">Clientes y cotizaciones SAP</div></div>
+            </a>
+        </div>
     </div>
 
+    @if (Model.ProximosEventos.Any())
+    {
+        <section class="ex-card mb-4">
+            <div class="ex-card-header">
+                <h3>Agenda de los próximos días</h3>
+                <a asp-controller="Calendario" asp-action="Index" class="btn btn-sm btn-outline-primary">Calendario</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-ex">
+                    <thead><tr><th>Fecha</th><th>Evento</th><th>Salón</th><th class="text-end">Personas</th></tr></thead>
+                    <tbody>
+                        @foreach (var e in Model.ProximosEventos)
+                        {
+                            <tr data-href="@Url.Action("Details", "Coordinacion", new { id = e.Id })">
+                                <td class="text-nowrap">@Fechas.Rango(e.FechaHoraInicio, e.FechaHoraFin)</td>
+                                <td><span class="fw-semibold">@e.NombreEvento</span> <partial name="_TipoEvento" model="e.TipoEvento" /></td>
+                                <td>@e.Salon.Nombre</td>
+                                <td class="text-end">@e.CantidadPersonas</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    }
+
+    <h2 class="h6 text-uppercase text-muted fw-bold mb-3">Mis solicitudes</h2>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <a class="stat-card" asp-controller="Solicitudes" asp-action="Index">
+            <span class="stat-icon bg-soft-primary"><i class="bi bi-card-checklist"></i></span>
+            <div><div class="stat-value">@Model.TotalSolicitudes</div><div class="stat-label">Total</div></div>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <a class="stat-card" asp-controller="Solicitudes" asp-action="Index" asp-route-estado="@Estados.Borrador">
+            <span class="stat-icon bg-soft-secondary"><i class="bi bi-pencil"></i></span>
+            <div><div class="stat-value">@Model.TotalBorradores</div><div class="stat-label">Borradores sin enviar</div></div>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <a class="stat-card" asp-controller="Solicitudes" asp-action="Index" asp-route-estado="pendientes">
+            <span class="stat-icon bg-soft-warning"><i class="bi bi-hourglass-split"></i></span>
+            <div><div class="stat-value">@Model.TotalPendientes</div><div class="stat-label">Esperando respuesta</div></div>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <a class="stat-card" asp-controller="Solicitudes" asp-action="Index" asp-route-estado="@Estados.Aprobada">
+            <span class="stat-icon bg-soft-success"><i class="bi bi-check-circle"></i></span>
+            <div><div class="stat-value">@Model.TotalAprobadas</div><div class="stat-label">Aprobadas</div></div>
+        </a>
+    </div>
 </div>
+
+<section class="ex-card">
+    <div class="ex-card-header">
+        <h3>Actividad reciente</h3>
+        <a asp-controller="Solicitudes" asp-action="Index" class="btn btn-sm btn-outline-primary">Ver todas</a>
+    </div>
+
+    @if (Model.SolicitudesRecientes.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-ex">
+                <thead><tr><th>Evento</th><th>Fecha</th><th>Salón</th><th>Estado</th></tr></thead>
+                <tbody>
+                    @foreach (var s in Model.SolicitudesRecientes)
+                    {
+                        <tr data-href="@Url.Action("Details", "Solicitudes", new { id = s.Id })">
+                            <td>
+                                <div class="fw-semibold">@s.NombreEvento</div>
+                                <div class="small text-muted">@s.Codigo</div>
+                            </td>
+                            <td class="text-nowrap">@s.FechaHoraInicio.ToString("ddd dd/MM/yyyy")</td>
+                            <td>@s.Salon.Nombre</td>
+                            <td><partial name="_EstadoBadge" model="s.Estado.Nombre" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="vacio">
+            <i class="bi bi-calendar-plus"></i>
+            <h3>Todavía no tienes solicitudes</h3>
+            <p>Consulta el calendario para ver qué salones están libres y registra tu primer evento.</p>
+            <a asp-controller="Solicitudes" asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Nueva solicitud
+            </a>
+        </div>
+    }
+</section>
