@@ -8,6 +8,20 @@ public class SolicitudEvento
 
     public string NombreEvento { get; set; } = string.Empty;
 
+    public TipoEvento TipoEvento { get; set; } = TipoEvento.Interno;
+
+    // Datos del cliente (solo eventos externos)
+    public string? ClienteNombre { get; set; }
+
+    public string? ClienteContacto { get; set; }
+
+    public string? ClienteTelefono { get; set; }
+
+    public string? ClienteCorreo { get; set; }
+
+    // Número de cotización / pedido en SAP (sincronización futura)
+    public string? ReferenciaSap { get; set; }
+
     public DateTime FechaHoraInicio { get; set; }
 
     public DateTime FechaHoraFin { get; set; }

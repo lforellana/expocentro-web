@@ -108,6 +108,12 @@ namespace Expocentro.Web.Migrations
                             Id = 4,
                             Activo = true,
                             Nombre = "Capacitaciones"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Activo = true,
+                            Nombre = "Sin asignar"
                         });
                 });
 
@@ -165,6 +171,13 @@ namespace Expocentro.Web.Migrations
                             Id = 5,
                             Activo = true,
                             Nombre = "Rechazada"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Activo = true,
+                            Descripcion = "Solicitud cancelada por el solicitante o Coordinación.",
+                            Nombre = "Cancelada"
                         });
                 });
 
@@ -332,6 +345,22 @@ namespace Expocentro.Web.Migrations
                     b.Property<int>("CantidadPersonas")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ClienteContacto")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("ClienteCorreo")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("ClienteNombre")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ClienteTelefono")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<string>("Codigo")
                         .IsRequired()
                         .HasColumnType("text");
@@ -364,6 +393,10 @@ namespace Expocentro.Web.Migrations
                     b.Property<string>("Otros")
                         .HasColumnType("text");
 
+                    b.Property<string>("ReferenciaSap")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<int?>("ResponsableUsuarioId")
                         .HasColumnType("integer");
 
@@ -372,6 +405,11 @@ namespace Expocentro.Web.Migrations
 
                     b.Property<int>("SolicitanteUsuarioId")
                         .HasColumnType("integer");
+
+                    b.Property<int>("TipoEvento")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
 
                     b.HasKey("Id");
 
@@ -382,11 +420,15 @@ namespace Expocentro.Web.Migrations
 
                     b.HasIndex("EstadoId");
 
+                    b.HasIndex("ReferenciaSap")
+                        .IsUnique()
+                        .HasFilter("\"ReferenciaSap\" IS NOT NULL");
+
                     b.HasIndex("ResponsableUsuarioId");
 
-                    b.HasIndex("SalonId");
-
                     b.HasIndex("SolicitanteUsuarioId");
+
+                    b.HasIndex("SalonId", "FechaHoraInicio", "FechaHoraFin");
 
                     b.ToTable("SolicitudesEvento");
                 });
@@ -569,6 +611,10 @@ namespace Expocentro.Web.Migrations
 
                     b.HasIndex("DepartamentoId");
 
+                    b.HasIndex("EntraObjectId")
+                        .IsUnique()
+                        .HasFilter("\"EntraObjectId\" IS NOT NULL");
+
                     b.ToTable("Usuarios");
 
                     b.HasData(
@@ -580,6 +626,24 @@ namespace Expocentro.Web.Migrations
                             DepartamentoId = 1,
                             Nombre = "Usuario Demo",
                             Rol = "Solicitante"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Activo = true,
+                            Correo = "coordinador.demo@ccichonduras.org",
+                            DepartamentoId = 2,
+                            Nombre = "Coordinador Demo",
+                            Rol = "Coordinador"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activo = true,
+                            Correo = "admin.demo@ccichonduras.org",
+                            DepartamentoId = 1,
+                            Nombre = "Administrador Demo",
+                            Rol = "Administrador"
                         });
                 });
 

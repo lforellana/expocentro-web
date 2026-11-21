@@ -1,0 +1,36 @@
+@model (int Paso, int? Id)
+@{
+    var pasos = new (string Texto, string Accion)[]
+    {
+        ("Datos generales", Model.Id.HasValue ? "Editar" : "Create"),
+        ("Montaje", "Montaje"),
+        ("Servicios", "Servicios"),
+        ("Alimentación", "Alimentacion"),
+        ("Resumen y envío", "Resumen")
+    };
+}
+<nav class="stepper" aria-label="Pasos de la solicitud">
+    @for (var i = 0; i < pasos.Length; i++)
+    {
+        var numero = i + 1;
+        var clase = numero < Model.Paso ? "hecho" : numero == Model.Paso ? "actual" : "";
+
+        @if (numero < Model.Paso && Model.Id.HasValue)
+        {
+            <a class="stepper-item @clase"
+               asp-controller="Solicitudes"
+               asp-action="@pasos[i].Accion"
+               asp-route-id="@Model.Id">
+                <span class="stepper-num"><i class="bi bi-check-lg"></i></span>
+                <span>@pasos[i].Texto</span>
+            </a>
+        }
+        else
+        {
+            <div class="stepper-item @clase" aria-current="@(numero == Model.Paso ? "step" : null)">
+                <span class="stepper-num">@numero</span>
+                <span>@pasos[i].Texto</span>
+            </div>
+        }
+    }
+</nav>

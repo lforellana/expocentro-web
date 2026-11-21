@@ -1,0 +1,215 @@
+@model SolicitudEvento
+@{
+    // Opción: ViewData["EnlacesEdicion"] (bool) muestra botones "Editar" (borrador)
+    var enlacesEdicion = ViewData["EnlacesEdicion"] as bool? ?? false;
+    var esExterno = Model.TipoEvento == TipoEvento.Externo;
+
+    string ValorO(string? valor) => string.IsNullOrWhiteSpace(valor) ? "—" : valor;
+}
+
+        <!-- DATOS GENERALES -->
+        <section class="ex-card mb-4">
+            <div class="ex-card-header">
+                <h2><i class="bi bi-info-circle text-primary me-2"></i>Datos generales</h2>
+                @if (enlacesEdicion)
+                {
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Editar" asp-route-id="@Model.Id" asp-route-desdeResumen="true">
+                        <i class="bi bi-pencil me-1"></i>Editar
+                    </a>
+                }
+            </div>
+            <div class="ex-card-body">
+                <div class="row g-4">
+                    <div class="col-md-6 dato">
+                        <small>Fecha y hora</small>
+                        <div>@Fechas.Rango(Model.FechaHoraInicio, Model.FechaHoraFin)</div>
+                    </div>
+                    <div class="col-md-6 dato">
+                        <small>Salón</small>
+                        <div>@Model.Salon.Nombre</div>
+                    </div>
+                    <div class="col-md-6 dato">
+                        <small>Cantidad de personas</small>
+                        <div>
+                            @Model.CantidadPersonas
+                            <span class="text-muted fw-normal small">/ capacidad @Model.Salon.CapacidadMaxima</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 dato">
+                        <small>@(esExterno ? "Registrado por" : "Solicitante")</small>
+                        <div>@Model.SolicitanteUsuario.Nombre</div>
+                    </div>
+                    <div class="col-md-6 dato">
+                        <small>Departamento a cargo</small>
+                        <div>@Model.DepartamentoCargo.Nombre</div>
+                    </div>
+                    <div class="col-md-6 dato">
+                        <small>Tipo de evento</small>
+                        <div><partial name="_TipoEvento" model="Model.TipoEvento" /></div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Otros))
+                {
+                    <hr />
+                    <div class="dato">
+                        <small>@(esExterno ? "Requerimientos logísticos" : "Otros requerimientos")</small>
+                        <p class="mb-0" style="white-space: pre-line">@Model.Otros</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.Comentarios))
+                {
+                    <hr />
+                    <div class="dato">
+                        <small>Comentarios</small>
+                        <p class="mb-0" style="white-space: pre-line">@Model.Comentarios</p>
+                    </div>
+                }
+            </div>
+        </section>
+
+        @if (esExterno)
+        {
+            <!-- CLIENTE -->
+            <section class="ex-card mb-4">
+                <div class="ex-card-header">
+                    <h2><i class="bi bi-building text-primary me-2"></i>Cliente</h2>
+                </div>
+                <div class="ex-card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6 dato"><small>Cliente / empresa</small><div>@ValorO(Model.ClienteNombre)</div></div>
+                        <div class="col-md-6 dato"><small>Contacto</small><div>@ValorO(Model.ClienteContacto)</div></div>
+                        <div class="col-md-4 dato"><small>Teléfono</small><div>@ValorO(Model.ClienteTelefono)</div></div>
+                        <div class="col-md-4 dato"><small>Correo</small><div class="text-break">@ValorO(Model.ClienteCorreo)</div></div>
+                        <div class="col-md-4 dato"><small>Referencia SAP</small><div>@ValorO(Model.ReferenciaSap)</div></div>
+                    </div>
+                </div>
+            </section>
+        }
+        else
+        {
+            <!-- MONTAJE -->
+            <section class="ex-card mb-4">
+                <div class="ex-card-header">
+                    <h2><i class="bi bi-grid-3x3-gap text-primary me-2"></i>Montaje</h2>
+                    @if (enlacesEdicion)
+                    {
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Montaje" asp-route-id="@Model.Id" asp-route-desdeResumen="true">
+                            <i class="bi bi-pencil me-1"></i>Editar
+                        </a>
+                    }
+                </div>
+                <div class="ex-card-body">
+                    @if (!Model.Montajes.Any())
+                    {
+                        <p class="text-muted mb-0">No se ha configurado el montaje.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var m in Model.Montajes.OrderBy(x => x.TipoMontaje.Nombre))
+                            {
+                                <li class="d-flex gap-2 py-1">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <div>
+                                        <span class="fw-semibold">@m.TipoMontaje.Nombre</span>
+                                        @if (m.TipoMontaje.Nombre != "Sin montaje")
+                                        {
+                                            <span class="badge badge-soft ms-1">× @m.Cantidad</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(m.Observaciones))
+                                        {
+                                            <div class="small text-muted">@m.Observaciones</div>
+                                        }
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </section>
+
+            <!-- SERVICIOS -->
+            <section class="ex-card mb-4">
+                <div class="ex-card-header">
+                    <h2><i class="bi bi-projector text-primary me-2"></i>Servicios</h2>
+                    @if (enlacesEdicion)
+                    {
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Servicios" asp-route-id="@Model.Id" asp-route-desdeResumen="true">
+                            <i class="bi bi-pencil me-1"></i>Editar
+                        </a>
+                    }
+                </div>
+                <div class="ex-card-body">
+                    @if (!Model.Servicios.Any())
+                    {
+                        <p class="text-muted mb-0">No se han configurado servicios.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var s in Model.Servicios.OrderBy(x => x.Servicio.Nombre))
+                            {
+                                <li class="d-flex gap-2 py-1">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <div>
+                                        <span class="fw-semibold">@s.Servicio.Nombre</span>
+                                        @if (s.Servicio.Nombre != "Sin servicios adicionales")
+                                        {
+                                            <span class="badge badge-soft ms-1">× @s.Cantidad</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(s.Observaciones))
+                                        {
+                                            <div class="small text-muted">@s.Observaciones</div>
+                                        }
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </section>
+
+            <!-- ALIMENTACIÓN -->
+            <section class="ex-card mb-4">
+                <div class="ex-card-header">
+                    <h2><i class="bi bi-cup-hot text-primary me-2"></i>Alimentación</h2>
+                    @if (enlacesEdicion)
+                    {
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Alimentacion" asp-route-id="@Model.Id" asp-route-desdeResumen="true">
+                            <i class="bi bi-pencil me-1"></i>Editar
+                        </a>
+                    }
+                </div>
+                <div class="ex-card-body">
+                    @if (Model.Alimentacion == null)
+                    {
+                        <p class="text-muted mb-0">No se ha completado la información de alimentación.</p>
+                    }
+                    else if (!Model.Alimentacion.RequiereAlimentacion)
+                    {
+                        <p class="mb-0"><i class="bi bi-dash-circle text-muted me-1"></i>El evento no requiere alimentación.</p>
+                    }
+                    else
+                    {
+                        var a = Model.Alimentacion;
+                        var complementos = new List<string>();
+                        if (a.IncluyeAgua) complementos.Add("Agua");
+                        if (a.IncluyeCafe) complementos.Add("Café");
+                        if (a.IncluyeRefrigerio) complementos.Add("Refrigerio");
+
+                        <div class="row g-4">
+                            <div class="col-md-4 dato"><small>Personas</small><div>@a.CantidadPersonas</div></div>
+                            <div class="col-md-4 dato"><small>Hora de servicio</small><div>@(a.HoraServicio?.ToString("hh:mm tt") ?? "—")</div></div>
+                            <div class="col-md-4 dato"><small>Complementos</small><div>@(complementos.Any() ? string.Join(", ", complementos) : "—")</div></div>
+                            <div class="col-12 dato"><small>Detalle / menú</small><div style="white-space: pre-line">@ValorO(a.Detalle)</div></div>
+                            @if (!string.IsNullOrWhiteSpace(a.Observaciones))
+                            {
+                                <div class="col-12 dato"><small>Observaciones</small><div class="fw-normal">@a.Observaciones</div></div>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+        }

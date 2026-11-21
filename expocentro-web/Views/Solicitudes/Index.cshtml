@@ -1,108 +1,90 @@
-@model IEnumerable<Expocentro.Web.Models.SolicitudEvento>
-
+@model IEnumerable<SolicitudEvento>
 @{
     ViewData["Title"] = "Mis solicitudes";
+    var estadoActual = ViewData["Estado"] as string ?? "";
+
+    var pestanas = new (string Valor, string Texto)[]
+    {
+        ("", "Todas"),
+        (Estados.Borrador, "Borradores"),
+        ("pendientes", "En trámite"),
+        (Estados.Aprobada, "Aprobadas"),
+        ("cerradas", "Rechazadas / canceladas")
+    };
 }
 
-<div class="container py-5">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <div>
-            <h1 class="fw-bold mb-1">
-                Mis solicitudes
-            </h1>
-
-            <p class="text-muted mb-0">
-                Eventos internos registrados.
-            </p>
-        </div>
-
-        <a asp-action="Create"
-           class="btn btn-primary">
-
-            + Nueva solicitud
-
-        </a>
-
+<div class="page-header">
+    <div>
+        <h1>Mis solicitudes</h1>
+        <p>Eventos internos que has registrado y su estado actual.</p>
     </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Nueva solicitud
+    </a>
+</div>
 
-    @if (TempData["Mensaje"] != null)
+<partial name="_Alertas" />
+
+<div class="ex-tabs">
+    @foreach (var p in pestanas)
     {
-        <div class="alert alert-success">
-            @TempData["Mensaje"]
-        </div>
+        <a class="@(p.Valor == estadoActual ? "active" : "")" asp-action="Index" asp-route-estado="@p.Valor">@p.Texto</a>
     }
+</div>
 
-    <div class="card border-0 shadow-sm">
-
+<section class="ex-card">
+    @if (Model.Any())
+    {
         <div class="table-responsive">
-
-            <table class="table table-hover align-middle mb-0">
-
-                <thead class="table-light">
-
+            <table class="table table-ex">
+                <thead>
                     <tr>
-                        <th>Código</th>
                         <th>Evento</th>
                         <th>Fecha</th>
                         <th>Salón</th>
-                        <th>Personas</th>
+                        <th class="text-end">Personas</th>
                         <th>Estado</th>
-                        <th>Acciones</th>
+                        <th></th>
                     </tr>
-
                 </thead>
-
                 <tbody>
-
-                @foreach (var solicitud in Model)
-                {
-                    <tr>
-
-                        <td>
-                            @solicitud.Codigo
-                        </td>
-
-                        <td class="fw-semibold">
-                            @solicitud.NombreEvento
-                        </td>
-
-                        <td>
-                            @solicitud.FechaHoraInicio.ToString("dd/MM/yyyy")
-                        </td>
-
-                        <td>
-                            @solicitud.Salon.Nombre
-                        </td>
-
-                        <td>
-                            @solicitud.CantidadPersonas
-                        </td>
-
-                        <td>
-                            <span class="badge bg-secondary">
-                                @solicitud.Estado.Nombre
-                            </span>
-                        </td>
-
-                        <td>
-                            <a asp-action="Details"
-                               asp-route-id="@solicitud.Id"
-                               class="btn btn-sm btn-outline-primary">
-                                Ver detalle
-                            </a>
-                        </td>
-
-                    </tr>
-                }
-
+                    @foreach (var s in Model)
+                    {
+                        var esBorrador = s.Estado.Nombre == Estados.Borrador;
+                        <tr data-href="@Url.Action("Details", new { id = s.Id })">
+                            <td>
+                                <div class="fw-semibold">@s.NombreEvento</div>
+                                <div class="small text-muted">@s.Codigo</div>
+                            </td>
+                            <td class="text-nowrap">@Fechas.Rango(s.FechaHoraInicio, s.FechaHoraFin)</td>
+                            <td>@s.Salon.Nombre</td>
+                            <td class="text-end">@s.CantidadPersonas</td>
+                            <td><partial name="_EstadoBadge" model="s.Estado.Nombre" /></td>
+                            <td class="text-end text-nowrap">
+                                @if (esBorrador)
+                                {
+                                    <a asp-action="Resumen" asp-route-id="@s.Id" class="btn btn-sm btn-primary">
+                                        Continuar <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-light">Ver</a>
+                                }
+                            </td>
+                        </tr>
+                    }
                 </tbody>
-
             </table>
-
         </div>
-
-    </div>
-
-</div>
+    }
+    else
+    {
+        <div class="vacio">
+            <i class="bi bi-inbox"></i>
+            <h3>No hay solicitudes en esta vista</h3>
+            <p>Cuando registres un evento aparecerá aquí con su estado.</p>
+            <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Nueva solicitud</a>
+        </div>
+    }
+</section>

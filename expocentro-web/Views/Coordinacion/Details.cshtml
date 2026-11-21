@@ -1,526 +1,99 @@
-@model Expocentro.Web.Models.SolicitudEvento
-
+@model SolicitudEvento
 @{
-    ViewData["Title"] = "Revisión de solicitud";
+    ViewData["Title"] = Model.NombreEvento;
 
-    var badgeClass = Model.Estado.Nombre switch
-    {
-        "Enviada" => "bg-primary",
-        "En revisión" => "bg-warning text-dark",
-        "Aprobada" => "bg-success",
-        "Rechazada" => "bg-danger",
-        _ => "bg-secondary"
-    };
+    var estado = Model.Estado.Nombre;
+    var disponibilidad = ViewData["Disponibilidad"] as ResultadoDisponibilidad;
+    var pendiente = estado is Estados.Enviada or Estados.EnRevision;
+    var esExterno = Model.TipoEvento == TipoEvento.Externo;
+    var cancelable = Estados.Cancelables.Contains(estado) && estado != Estados.Borrador;
+    var bloqueado = disponibilidad?.HayConflictoConfirmado == true;
 }
 
-<div class="container py-5">
-
-    <!-- ENCABEZADO -->
-    <div class="d-flex justify-content-between align-items-start mb-4">
-
-        <div>
-            <p class="text-muted mb-1">
-                @Model.Codigo
-            </p>
-
-            <h1 class="fw-bold mb-1">
-                @Model.NombreEvento
-            </h1>
-
-            <p class="text-muted mb-0">
-                Revisión de solicitud de evento
-            </p>
+<div class="page-header">
+    <div>
+        <div class="page-kicker">
+            <a asp-action="Index" class="text-decoration-none"><i class="bi bi-arrow-left"></i> Bandeja</a>
+            · @Model.Codigo
         </div>
-
-        <span class="badge @badgeClass px-3 py-2">
-            @Model.Estado.Nombre
-        </span>
-
+        <h1>@Model.NombreEvento</h1>
+        <p>@Fechas.Rango(Model.FechaHoraInicio, Model.FechaHoraFin) · @Model.Salon.Nombre</p>
     </div>
-
-
-    @if (TempData["Mensaje"] != null)
-    {
-        <div class="alert alert-success">
-            @TempData["Mensaje"]
-        </div>
-    }
-
-
-    <!-- DATOS GENERALES -->
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body p-4">
-
-            <h5 class="fw-bold mb-4">
-                Datos generales
-            </h5>
-
-            <div class="row g-4">
-
-                <div class="col-md-6">
-
-                    <small class="text-muted">
-                        Solicitante
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.SolicitanteUsuario.Nombre
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <small class="text-muted">
-                        Departamento
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.DepartamentoCargo.Nombre
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <small class="text-muted">
-                        Fecha de inicio
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.FechaHoraInicio.ToString("dd/MM/yyyy hh:mm tt")
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <small class="text-muted">
-                        Fecha de finalización
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.FechaHoraFin.ToString("dd/MM/yyyy hh:mm tt")
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <small class="text-muted">
-                        Salón
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.Salon.Nombre
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <small class="text-muted">
-                        Cantidad de personas
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.CantidadPersonas
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            @if (!string.IsNullOrWhiteSpace(Model.Otros))
-            {
-                <hr />
-
-                <small class="text-muted">
-                    Otros requerimientos
-                </small>
-
-                <p class="mb-0">
-                    @Model.Otros
-                </p>
-            }
-
-        </div>
-
+    <div class="d-flex gap-2 align-items-center">
+        <partial name="_TipoEvento" model="Model.TipoEvento" />
+        <partial name="_EstadoBadge" model="estado" />
     </div>
-
-
-    <!-- MONTAJE -->
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body p-4">
-
-            <h5 class="fw-bold mb-3">
-                Montaje
-            </h5>
-
-            @if (Model.Montajes.Any())
-            {
-                <div class="table-responsive">
-
-                    <table class="table align-middle mb-0">
-
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Cantidad</th>
-                                <th>Observaciones</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                        @foreach (var montaje in Model.Montajes)
-                        {
-                            var sinMontaje =
-                                montaje.TipoMontaje.Nombre == "Sin montaje";
-
-                            <tr>
-
-                                <td class="fw-semibold">
-                                    @montaje.TipoMontaje.Nombre
-                                </td>
-
-                                <td>
-                                    @(sinMontaje
-                                        ? "-"
-                                        : montaje.Cantidad)
-                                </td>
-
-                                <td>
-                                    @(string.IsNullOrWhiteSpace(
-                                        montaje.Observaciones)
-                                        ? "-"
-                                        : montaje.Observaciones)
-                                </td>
-
-                            </tr>
-                        }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-            }
-
-        </div>
-
-    </div>
-
-
-    <!-- SERVICIOS -->
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body p-4">
-
-            <h5 class="fw-bold mb-3">
-                Servicios
-            </h5>
-
-            @if (Model.Servicios.Any())
-            {
-                <div class="table-responsive">
-
-                    <table class="table align-middle mb-0">
-
-                        <thead>
-                            <tr>
-                                <th>Servicio</th>
-                                <th>Cantidad</th>
-                                <th>Observaciones</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                        @foreach (var servicio in Model.Servicios)
-                        {
-                            var sinServicios =
-                                servicio.Servicio.Nombre ==
-                                "Sin servicios adicionales";
-
-                            <tr>
-
-                                <td class="fw-semibold">
-                                    @servicio.Servicio.Nombre
-                                </td>
-
-                                <td>
-                                    @(sinServicios
-                                        ? "-"
-                                        : servicio.Cantidad)
-                                </td>
-
-                                <td>
-                                    @(string.IsNullOrWhiteSpace(
-                                        servicio.Observaciones)
-                                        ? "-"
-                                        : servicio.Observaciones)
-                                </td>
-
-                            </tr>
-                        }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-            }
-
-        </div>
-
-    </div>
-
-
-    <!-- ALIMENTACIÓN -->
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body p-4">
-
-            <h5 class="fw-bold mb-3">
-                Alimentación
-            </h5>
-
-            @if (Model.Alimentacion == null)
-            {
-                <p class="text-muted mb-0">
-                    No se registró información.
-                </p>
-            }
-            else if (!Model.Alimentacion.RequiereAlimentacion)
-            {
-                <p class="mb-0">
-                    El evento no requiere alimentación.
-                </p>
-            }
-            else
-            {
-                <div class="row g-4">
-
-                    <div class="col-md-4">
-
-                        <small class="text-muted">
-                            Personas
-                        </small>
-
-                        <div class="fw-semibold">
-                            @Model.Alimentacion.CantidadPersonas
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <small class="text-muted">
-                            Hora
-                        </small>
-
-                        <div class="fw-semibold">
-                            @(Model.Alimentacion.HoraServicio?.ToString("HH:mm") ?? "-")
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <small class="text-muted">
-                            Detalle
-                        </small>
-
-                        <div class="fw-semibold">
-                            @Model.Alimentacion.Detalle
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <hr />
-
-
-                <div class="d-flex gap-2 flex-wrap">
-
-                    @if (Model.Alimentacion.IncluyeAgua)
-                    {
-                        <span class="badge bg-light text-dark border">
-                            Agua
-                        </span>
-                    }
-
-                    @if (Model.Alimentacion.IncluyeCafe)
-                    {
-                        <span class="badge bg-light text-dark border">
-                            Café
-                        </span>
-                    }
-
-                    @if (Model.Alimentacion.IncluyeRefrigerio)
-                    {
-                        <span class="badge bg-light text-dark border">
-                            Refrigerio
-                        </span>
-                    }
-
-                </div>
-            }
-
-        </div>
-
-    </div>
-
-<!-- HISTORIAL -->
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-body p-4">
-
-        <h5 class="fw-bold mb-4">
-            Historial de la solicitud
-        </h5>
-
-        @if (Model.HistorialEstados.Any())
-        {
-            <div class="table-responsive">
-
-                <table class="table align-middle mb-0">
-
-                    <thead>
-
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                            <th>Actor</th>
-                            <th>Comentario</th>
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                    @foreach (var historial in
-                        Model.HistorialEstados
-                            .OrderByDescending(x => x.FechaCambio))
-                    {
-                        <tr>
-
-                            <td>
-                                @historial.FechaCambio
-                                    .ToLocalTime()
-                                    .ToString("dd/MM/yyyy hh:mm tt")
-                            </td>
-
-                            <td class="fw-semibold">
-                                @historial.EstadoSolicitud.Nombre
-                            </td>
-
-                            <td>
-                                @historial.Actor
-                            </td>
-
-                            <td>
-                                @(string.IsNullOrWhiteSpace(
-                                    historial.Comentario)
-                                    ? "-"
-                                    : historial.Comentario)
-                            </td>
-
-                        </tr>
-                    }
-
-                    </tbody>
-
-                </table>
-
-            </div>
-        }
-        else
-        {
-            <p class="text-muted mb-0">
-                No hay cambios de estado registrados.
-            </p>
-        }
-
-    </div>
-
 </div>
 
-    <!-- ACCIONES -->
-    <div class="d-flex justify-content-between align-items-center">
+<partial name="_Alertas" />
 
-        <a asp-action="Index"
-           class="btn btn-outline-secondary">
+@if (disponibilidad != null && (pendiente || estado == Estados.Aprobada))
+{
+    <partial name="_Conflictos" model="disponibilidad" />
+}
 
-            ← Volver a coordinación
-
-        </a>
-
-
-        <div class="d-flex gap-2">
-
-            @if (Model.Estado.Nombre == "Enviada")
-            {
-                <form asp-action="Revisar"
-                      asp-route-id="@Model.Id"
-                      method="post">
-
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-warning">
-
-                        Iniciar revisión
-
-                    </button>
-
-                </form>
-            }
-
-
-            @if (Model.Estado.Nombre == "En revisión")
-            {
-                <a asp-action="Rechazar"
-   asp-route-id="@Model.Id"
-   class="btn btn-outline-danger">
-
-    Rechazar
-
-</a>
-
-
-                <form asp-action="Aprobar"
-                      asp-route-id="@Model.Id"
-                      method="post">
-
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-success"
-                            onclick="return confirm('¿Desea aprobar esta solicitud?');">
-
-                        Aprobar
-
-                    </button>
-
-                </form>
-            }
-
-        </div>
-
+<div class="row g-4">
+    <div class="col-xl-8">
+        @{ ViewData["EnlacesEdicion"] = false; }
+        <partial name="_DetalleEvento" model="Model" />
     </div>
 
+    <div class="col-xl-4">
+
+        @if (pendiente)
+        {
+            <section class="ex-card ex-card-body mb-4">
+                <h2 class="ex-section-title"><i class="bi bi-clipboard-check"></i> Decisión</h2>
+
+                @if (estado == Estados.Enviada)
+                {
+                    <form asp-action="Revisar" asp-route-id="@Model.Id" method="post" class="mb-3">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-hourglass-split me-1"></i> Tomar para revisión
+                        </button>
+                        <div class="form-text">Avisa al solicitante que ya la estás atendiendo.</div>
+                    </form>
+                }
+
+                <form asp-action="Aprobar" asp-route-id="@Model.Id" method="post">
+                    <label class="form-label small" for="comentario">Comentario para el solicitante (opcional)</label>
+                    <textarea class="form-control mb-2" id="comentario" name="comentario" rows="2" maxlength="500"></textarea>
+                    <button type="submit" class="btn btn-success w-100" disabled="@bloqueado">
+                        <i class="bi bi-check-circle me-1"></i> Aprobar y reservar salón
+                    </button>
+                    @if (bloqueado)
+                    {
+                        <div class="form-text text-danger">No se puede aprobar: el salón ya está reservado.</div>
+                    }
+                </form>
+
+                <a asp-action="Rechazar" asp-route-id="@Model.Id" class="btn btn-outline-danger w-100 mt-2">
+                    <i class="bi bi-x-circle me-1"></i> Rechazar
+                </a>
+            </section>
+        }
+
+        @if (esExterno && estado == Estados.Aprobada)
+        {
+            <a asp-controller="EventosExternos" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary w-100 mb-4">
+                <i class="bi bi-pencil me-1"></i> Editar evento externo
+            </a>
+        }
+
+        <partial name="_Historial" model="Model.HistorialEstados" />
+
+        @if (cancelable)
+        {
+            <div class="text-center mt-3">
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalCancelar">
+                    <i class="bi bi-slash-circle me-1"></i> Cancelar evento
+                </button>
+            </div>
+        }
+    </div>
 </div>
+
+@if (cancelable)
+{
+    <partial name="_CancelarModal" model='("Coordinacion", Model.Id, true)' />
+}

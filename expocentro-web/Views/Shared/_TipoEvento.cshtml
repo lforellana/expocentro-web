@@ -1,0 +1,9 @@
+@model TipoEvento
+@if (Model == TipoEvento.Externo)
+{
+    <span class="tipo-evento tipo-externo" title="Evento de cliente externo">EXTERNO</span>
+}
+else
+{
+    <span class="tipo-evento tipo-interno" title="Evento interno CCIC">INTERNO</span>
+}

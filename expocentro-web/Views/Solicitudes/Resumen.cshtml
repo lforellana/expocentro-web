@@ -1,451 +1,69 @@
-@model Expocentro.Web.Models.SolicitudEvento
-
+@model SolicitudEvento
 @{
-    ViewData["Title"] = "Resumen de solicitud";
+    ViewData["Title"] = "Resumen";
+    ViewData["EnlacesEdicion"] = true;
+
+    var disponibilidad = ViewData["Disponibilidad"] as ResultadoDisponibilidad;
+    var faltantes = new List<string>();
+    if (!Model.Montajes.Any()) faltantes.Add("montaje");
+    if (!Model.Servicios.Any()) faltantes.Add("servicios");
+    if (Model.Alimentacion == null) faltantes.Add("alimentación");
+
+    var puedeEnviar = !faltantes.Any() && disponibilidad?.HayConflictoConfirmado != true;
 }
 
-<div class="container py-5">
-
-    <div class="mb-4">
-
-        <p class="text-muted mb-1">
-            @Model.Codigo
-        </p>
-
-        <h1 class="fw-bold">
-            Resumen de solicitud
-        </h1>
-
-        <p class="text-muted">
-            Revisa la información antes de enviar la solicitud.
-        </p>
-
+<div class="page-header">
+    <div>
+        <div class="page-kicker">@Model.Codigo</div>
+        <h1>@Model.NombreEvento</h1>
+        <p>Revisa que todo esté correcto antes de enviar la solicitud a Coordinación.</p>
     </div>
+    <partial name="_EstadoBadge" model="Model.Estado.Nombre" />
+</div>
 
-    <!-- PROGRESO -->
-    <div class="mb-5">
+<partial name="_PasosSolicitud" model="(5, (int?)Model.Id)" />
+<partial name="_Alertas" />
 
-        <div class="d-flex justify-content-between text-center">
+@if (disponibilidad != null)
+{
+    <partial name="_Conflictos" model="disponibilidad" />
+}
 
-            <div class="flex-fill">
-                <strong>✓ Datos generales</strong>
-            </div>
-
-            <div class="flex-fill">
-                <strong>✓ Montaje</strong>
-            </div>
-
-            <div class="flex-fill">
-                <strong>✓ Servicios</strong>
-            </div>
-
-             <div class="flex-fill">
-                <strong>✓ Alimentación</strong>
-            </div>
-
-            <div class="flex-fill text-primary">
-                <strong>4. Resumen</strong>
-            </div>
-
-        </div>
-
+@if (faltantes.Any())
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        Falta completar: <strong>@string.Join(", ", faltantes)</strong>.
     </div>
+}
 
-
-    <!-- DATOS GENERALES -->
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body p-4">
-
-            <div class="d-flex justify-content-between align-items-center mb-4">
-
-                <h5 class="fw-bold mb-0">
-                    Datos generales
-                </h5>
-
-            </div>
-
-            <div class="row g-4">
-
-                <div class="col-md-6">
-                    <small class="text-muted">
-                        Nombre del evento
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.NombreEvento
-                    </div>
-                </div>
-
-
-                <div class="col-md-6">
-                    <small class="text-muted">
-                        Salón
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.Salon.Nombre
-                    </div>
-                </div>
-
-
-                <div class="col-md-6">
-                    <small class="text-muted">
-                        Inicio
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.FechaHoraInicio.ToString("dd/MM/yyyy hh:mm tt")
-                    </div>
-                </div>
-
-
-                <div class="col-md-6">
-                    <small class="text-muted">
-                        Finalización
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.FechaHoraFin.ToString("dd/MM/yyyy hh:mm tt")
-                    </div>
-                </div>
-
-
-                <div class="col-md-6">
-                    <small class="text-muted">
-                        Cantidad de personas
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.CantidadPersonas
-                    </div>
-                </div>
-
-
-                <div class="col-md-6">
-                    <small class="text-muted">
-                        Departamento
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.DepartamentoCargo.Nombre
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
+<div class="row g-4">
+    <div class="col-xl-8">
+        <partial name="_DetalleEvento" model="Model" />
     </div>
-
-
-    <!-- MONTAJE -->
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body p-4">
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-
-                <h5 class="fw-bold mb-0">
-                    Montaje
-                </h5>
-
-                <a asp-action="Montaje"
-                   asp-route-id="@Model.Id"
-                   class="btn btn-sm btn-outline-primary">
-
-                    Editar
-
-                </a>
-
-            </div>
-
-
-            @if (Model.Montajes.Any())
-            {
-                <div class="table-responsive">
-
-                    <table class="table align-middle mb-0">
-
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Cantidad</th>
-                                <th>Observaciones</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                        @foreach (var montaje in Model.Montajes)
-                        {
-                            var sinMontaje =
-                                montaje.TipoMontaje.Nombre == "Sin montaje";
-
-                            <tr>
-
-                                <td class="fw-semibold">
-                                    @montaje.TipoMontaje.Nombre
-                                </td>
-
-                                <td>
-                                    @(sinMontaje
-                                        ? "-"
-                                        : montaje.Cantidad)
-                                </td>
-
-                                <td>
-                                    @(string.IsNullOrWhiteSpace(
-                                        montaje.Observaciones)
-                                        ? "-"
-                                        : montaje.Observaciones)
-                                </td>
-
-                            </tr>
-                        }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-            }
-
-        </div>
-
-    </div>
-
-
-    <!-- SERVICIOS -->
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body p-4">
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-
-                <h5 class="fw-bold mb-0">
-                    Servicios
-                </h5>
-
-                <a asp-action="Servicios"
-                   asp-route-id="@Model.Id"
-                   class="btn btn-sm btn-outline-primary">
-
-                    Editar
-
-                </a>
-
-            </div>
-
-
-            @if (Model.Servicios.Any())
-            {
-                <div class="table-responsive">
-
-                    <table class="table align-middle mb-0">
-
-                        <thead>
-
-                            <tr>
-                                <th>Servicio</th>
-                                <th>Cantidad</th>
-                                <th>Observaciones</th>
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                        @foreach (var servicio in Model.Servicios)
-                        {
-                            var sinServicios =
-                                servicio.Servicio.Nombre ==
-                                "Sin servicios adicionales";
-
-                            <tr>
-
-                                <td class="fw-semibold">
-                                    @servicio.Servicio.Nombre
-                                </td>
-
-                                <td>
-                                    @(sinServicios
-                                        ? "-"
-                                        : servicio.Cantidad)
-                                </td>
-
-                                <td>
-                                    @(string.IsNullOrWhiteSpace(
-                                        servicio.Observaciones)
-                                        ? "-"
-                                        : servicio.Observaciones)
-                                </td>
-
-                            </tr>
-                        }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-            }
-
-        </div>
-
-    </div>
-
-<!-- ALIMENTACIÓN -->
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-body p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <h5 class="fw-bold mb-0">
-                Alimentación
-            </h5>
-
-            <a asp-action="Alimentacion"
-               asp-route-id="@Model.Id"
-               class="btn btn-sm btn-outline-primary">
-
-                Editar
-
-            </a>
-
-        </div>
-
-        @if (Model.Alimentacion == null)
-        {
-            <p class="text-muted mb-0">
-                No se ha completado la información de alimentación.
+    <div class="col-xl-4">
+        <div class="ex-card ex-card-body position-sticky" style="top: 1.5rem">
+            <h2 class="ex-section-title"><i class="bi bi-send"></i> Enviar solicitud</h2>
+            <p class="small text-muted">
+                Al enviarla ya no podrás modificarla. Coordinación la revisará y verás cada cambio de estado en el historial.
             </p>
-        }
-        else if (!Model.Alimentacion.RequiereAlimentacion)
-        {
-            <div class="alert alert-light border mb-0">
-                El evento no requiere alimentación.
+            <form asp-action="Enviar" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-primary w-100 btn-lg" disabled="@(!puedeEnviar)">
+                    <i class="bi bi-send me-1"></i> Enviar a Coordinación
+                </button>
+            </form>
+            <div class="d-flex justify-content-between mt-3">
+                <a asp-action="Alimentacion" asp-route-id="@Model.Id" class="btn btn-sm btn-light">
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </a>
+                <a asp-action="Index" class="btn btn-sm btn-light">Guardar borrador y salir</a>
             </div>
-        }
-        else
-        {
-            <div class="row g-4">
-
-                <div class="col-md-6">
-                    <small class="text-muted">
-                        Cantidad de personas
-                    </small>
-
-                    <div class="fw-semibold">
-                        @Model.Alimentacion.CantidadPersonas
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <small class="text-muted">
-                        Hora de servicio
-                    </small>
-
-                    <div class="fw-semibold">
-                        @(Model.Alimentacion.HoraServicio?.ToString("HH:mm") ?? "-")
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <small class="text-muted">
-                        Detalle / menú
-                    </small>
-
-                    <div class="fw-semibold">
-                        @(string.IsNullOrWhiteSpace(Model.Alimentacion.Detalle)
-                            ? "-"
-                            : Model.Alimentacion.Detalle)
-                    </div>
-                </div>
-
-            </div>
-
             <hr />
-
-            <h6 class="fw-bold">
-                Complementos
-            </h6>
-
-            <div class="d-flex gap-3 flex-wrap">
-
-                @if (Model.Alimentacion.IncluyeAgua)
-                {
-                    <span class="badge bg-light text-dark border">
-                        Agua
-                    </span>
-                }
-
-                @if (Model.Alimentacion.IncluyeCafe)
-                {
-                    <span class="badge bg-light text-dark border">
-                        Café
-                    </span>
-                }
-
-                @if (Model.Alimentacion.IncluyeRefrigerio)
-                {
-                    <span class="badge bg-light text-dark border">
-                        Refrigerio adicional
-                    </span>
-                }
-
-            </div>
-
-            @if (!string.IsNullOrWhiteSpace(
-                Model.Alimentacion.Observaciones))
-            {
-                <div class="mt-3">
-
-                    <small class="text-muted">
-                        Observaciones
-                    </small>
-
-                    <p class="mb-0">
-                        @Model.Alimentacion.Observaciones
-                    </p>
-
-                </div>
-            }
-        }
-
-    </div>
-
-</div>
-
-    <!-- ACCIONES -->
-    <div class="d-flex justify-content-between align-items-center">
-
-        <a asp-action="Servicios"
-           asp-route-id="@Model.Id"
-           class="btn btn-outline-secondary">
-
-            ← Regresar a servicios
-
-        </a>
-
-
-        <form asp-action="Enviar"
-              asp-route-id="@Model.Id"
-              method="post">
-
-            @Html.AntiForgeryToken()
-
-            <button type="submit"
-                    class="btn btn-success px-4">
-
-                Enviar solicitud
-
+            <button type="button" class="btn btn-sm btn-link text-danger p-0" data-bs-toggle="modal" data-bs-target="#modalCancelar">
+                Descartar esta solicitud
             </button>
-
-        </form>
-
+        </div>
     </div>
-
 </div>
+
+<partial name="_CancelarModal" model='("Solicitudes", Model.Id, false)' />

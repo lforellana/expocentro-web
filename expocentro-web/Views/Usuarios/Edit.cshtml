@@ -1,0 +1,49 @@
+@model UsuarioEditViewModel
+@{
+    ViewData["Title"] = "Editar usuario";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker"><a asp-action="Index" class="text-decoration-none"><i class="bi bi-arrow-left"></i> Usuarios</a></div>
+        <h1>@Model.Nombre</h1>
+        <p>@Model.Correo</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 col-xl-6">
+        <form asp-action="Edit" method="post" class="ex-card ex-card-body">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="DepartamentoId" class="form-label"></label>
+                <select asp-for="DepartamentoId" asp-items="Model.Departamentos" class="form-select"></select>
+                <span asp-validation-for="DepartamentoId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Rol" class="form-label"></label>
+                <select asp-for="Rol" class="form-select">
+                    <option value="@Roles.Solicitante">Solicitante — crea solicitudes de eventos internos</option>
+                    <option value="@Roles.Coordinador">Coordinador — revisa, aprueba y registra eventos externos</option>
+                    <option value="@Roles.Administrador">Administrador — todo lo anterior y gestión de usuarios</option>
+                </select>
+                <div class="form-text">
+                    Si el rol está asignado como <em>App role</em> en Entra ID, se suma al de esta pantalla.
+                </div>
+            </div>
+
+            <div class="form-check form-switch mb-2">
+                <input asp-for="Activo" class="form-check-input" role="switch" />
+                <label asp-for="Activo" class="form-check-label">Usuario activo (puede iniciar sesión)</label>
+            </div>
+
+            <div class="form-acciones">
+                <a asp-action="Index" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-primary px-4">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>

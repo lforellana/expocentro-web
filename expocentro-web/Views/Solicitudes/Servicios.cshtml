@@ -1,202 +1,78 @@
-@model Expocentro.Web.ViewModels.SolicitudServicioViewModel
-
+@model SolicitudServicioViewModel
 @{
     ViewData["Title"] = "Servicios";
+    var desdeResumen = ViewData["DesdeResumen"] as bool? ?? false;
 }
 
-<div class="container py-5">
-
-    <div class="mb-4">
-        <p class="text-muted mb-1">
-            @Model.Codigo
-        </p>
-
-        <h1 class="fw-bold">
-            Servicios requeridos
-        </h1>
-
-        <p class="text-muted">
-            @Model.NombreEvento
-        </p>
+<div class="page-header">
+    <div>
+        <div class="page-kicker">@Model.Codigo</div>
+        <h1>@Model.NombreEvento</h1>
+        <p>¿Qué equipo o servicios necesitarás durante el evento?</p>
     </div>
-
-    <div class="mb-4">
-        <div class="d-flex justify-content-between text-center">
-
-            <div class="flex-fill">
-                <strong>✓ Datos generales</strong>
-            </div>
-
-            <div class="flex-fill">
-                <strong>✓ Montaje</strong>
-            </div>
-
-            <div class="flex-fill text-primary">
-                <strong>3. Servicios</strong>
-            </div>
-
-            <div class="flex-fill">
-            <strong>✓ Alimentación</strong>
-            </div>
-
-            <div class="flex-fill text-muted">
-                4. Resumen
-            </div>
-
-        </div>
-    </div>
-
-    <form asp-action="Servicios" method="post">
-
-        @Html.AntiForgeryToken()
-
-        <input asp-for="SolicitudEventoId" type="hidden" />
-
-        <div asp-validation-summary="ModelOnly"
-             class="alert alert-danger">
-        </div>
-
-        <div class="row g-3">
-
-            @for (var i = 0; i < Model.Servicios.Count; i++)
-            {
-                var sinServicios =
-                    Model.Servicios[i].Nombre == "Sin servicios adicionales";
-
-                <div class="col-md-6 col-lg-4">
-
-                    <div class="card h-100 border shadow-sm">
-
-                        <div class="card-body">
-
-                            <input asp-for="Servicios[i].ServicioId"
-                                   type="hidden" />
-
-                            <input asp-for="Servicios[i].Nombre"
-                                   type="hidden" />
-
-                            <div class="form-check mb-3">
-
-                                <input asp-for="Servicios[i].Seleccionado"
-                                       class="form-check-input servicio-check"
-                                       data-sin-servicios="@(sinServicios ? "true" : "false")" />
-
-                                <label asp-for="Servicios[i].Seleccionado"
-                                       class="form-check-label fw-bold">
-
-                                    @Model.Servicios[i].Nombre
-
-                                </label>
-
-                            </div>
-
-                            @if (sinServicios)
-                            {
-                                <input asp-for="Servicios[i].Cantidad"
-                                       type="hidden"
-                                       value="1" />
-                            }
-                            else
-                            {
-                                <div>
-
-                                    <label class="form-label">
-                                        Cantidad
-                                    </label>
-
-                                    <input asp-for="Servicios[i].Cantidad"
-                                           class="form-control mb-3"
-                                           min="1" />
-
-                                    <label class="form-label">
-                                        Observaciones
-                                    </label>
-
-                                    <textarea asp-for="Servicios[i].Observaciones"
-                                              class="form-control"
-                                              rows="2"></textarea>
-
-                                </div>
-                            }
-
-                        </div>
-
-                    </div>
-
-                </div>
-            }
-
-        </div>
-
-        <div class="d-flex justify-content-between mt-4">
-
-            <a asp-action="Montaje"
-               asp-route-id="@Model.SolicitudEventoId"
-               class="btn btn-outline-secondary">
-
-                ← Regresar a montaje
-
-            </a>
-
-            <button type="submit"
-                    class="btn btn-primary">
-
-                Guardar servicios
-
-            </button>
-
-        </div>
-
-    </form>
-
 </div>
 
+<partial name="_PasosSolicitud" model="(3, (int?)Model.SolicitudEventoId)" />
+<partial name="_Alertas" />
 
-@section Scripts {
+<form asp-action="Servicios" method="post">
+    <input asp-for="SolicitudEventoId" type="hidden" />
+    <input type="hidden" name="desdeResumen" value="@desdeResumen.ToString().ToLower()" />
 
-    <script>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-        document.addEventListener("DOMContentLoaded", function () {
+    <div class="row g-3" data-opciones>
+        @for (var i = 0; i < Model.Servicios.Count; i++)
+        {
+            var item = Model.Servicios[i];
+            var ninguna = item.Nombre == "Sin servicios adicionales";
 
-            const checks =
-                document.querySelectorAll(".servicio-check");
+            <div class="col-md-6 col-xl-4">
+                <div class="opcion-card @(ninguna ? "opcion-ninguna" : "")" data-ninguna="@(ninguna ? "true" : "false")">
+                    <input asp-for="Servicios[i].ServicioId" type="hidden" />
 
-            checks.forEach(check => {
-
-                check.addEventListener("change", function () {
-
-                    const esSinServicios =
-                        this.dataset.sinServicios === "true";
-
-                    if (esSinServicios && this.checked) {
-
-                        checks.forEach(other => {
-
-                            if (other !== this) {
-                                other.checked = false;
+                    <div class="form-check">
+                        <input asp-for="Servicios[i].Seleccionado" class="form-check-input" />
+                        <label asp-for="Servicios[i].Seleccionado" class="form-check-label">
+                            @if (ninguna)
+                            {
+                                <i class="bi bi-dash-circle me-1"></i>
                             }
+                            @item.Nombre
+                        </label>
+                    </div>
 
-                        });
-
+                    @if (ninguna)
+                    {
+                        <input asp-for="Servicios[i].Cantidad" type="hidden" />
+                        <div class="small text-muted mt-1 ps-4">No se requiere equipo adicional.</div>
                     }
-                    else if (this.checked) {
-
-                        checks.forEach(other => {
-
-                            if (other.dataset.sinServicios === "true") {
-                                other.checked = false;
-                            }
-
-                        });
-
+                    else
+                    {
+                        <div class="opcion-detalle">
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <label class="form-label small" asp-for="Servicios[i].Cantidad">Cantidad</label>
+                                    <input asp-for="Servicios[i].Cantidad" class="form-control form-control-sm" min="1" />
+                                </div>
+                                <div class="col-8">
+                                    <label class="form-label small" asp-for="Servicios[i].Observaciones">Observaciones</label>
+                                    <input asp-for="Servicios[i].Observaciones" class="form-control form-control-sm" placeholder="Opcional" />
+                                </div>
+                            </div>
+                        </div>
                     }
+                </div>
+            </div>
+        }
+    </div>
 
-                });
-
-            });
-
-        });
-
-    </script>
-
-}
+    <div class="form-acciones">
+        <a asp-action="@(desdeResumen ? "Resumen" : "Montaje")" asp-route-id="@Model.SolicitudEventoId" class="btn btn-light">
+            <i class="bi bi-arrow-left me-1"></i> @(desdeResumen ? "Volver al resumen" : "Anterior")
+        </a>
+        <button type="submit" class="btn btn-primary px-4">
+            @(desdeResumen ? "Guardar y volver al resumen" : "Guardar y continuar") <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+    </div>
+</form>
