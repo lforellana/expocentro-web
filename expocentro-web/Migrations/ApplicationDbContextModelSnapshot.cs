@@ -114,6 +114,72 @@ namespace Expocentro.Web.Migrations
                             Id = 5,
                             Activo = true,
                             Nombre = "Sin asignar"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Activo = true,
+                            Nombre = "Logística"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Activo = true,
+                            Nombre = "Presidencia"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Activo = true,
+                            Nombre = "Recursos Humanos y RSE"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Activo = true,
+                            Nombre = "Servicios Generales"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Activo = true,
+                            Nombre = "Bazar del Sábado"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Activo = true,
+                            Nombre = "Eventos"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Activo = true,
+                            Nombre = "Cobros"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Activo = true,
+                            Nombre = "Comunicaciones y Mercadeo"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Activo = true,
+                            Nombre = "Compras"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Activo = true,
+                            Nombre = "Contabilidad"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Activo = true,
+                            Nombre = "Legal"
                         });
                 });
 
@@ -225,7 +291,7 @@ namespace Expocentro.Web.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("CapacidadMaxima")
+                    b.Property<int?>("CapacidadMaxima")
                         .HasColumnType("integer");
 
                     b.Property<string>("Descripcion")
@@ -233,9 +299,15 @@ namespace Expocentro.Web.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int?>("SalonPadreId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SalonPadreId");
 
                     b.ToTable("Salones");
 
@@ -246,7 +318,7 @@ namespace Expocentro.Web.Migrations
                             Activo = true,
                             CapacidadMaxima = 500,
                             Descripcion = "Salón para eventos y actividades institucionales.",
-                            Nombre = "Centro de Convenciones Felipe Arguello"
+                            Nombre = "Centro de convenciones Felipe Arguello"
                         },
                         new
                         {
@@ -254,7 +326,115 @@ namespace Expocentro.Web.Migrations
                             Activo = true,
                             CapacidadMaxima = 150,
                             Descripcion = "Espacio para reuniones y eventos.",
-                            Nombre = "Los Zorzales"
+                            Nombre = "Edificio Los Zorzales"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activo = true,
+                            Nombre = "Sala Rafael Pastor"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Activo = true,
+                            Nombre = "Sala Mario Belot"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Activo = true,
+                            Nombre = "Sala Alberto Smit"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Activo = true,
+                            Nombre = "Sala VIP #1 Carlos Katan"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Activo = true,
+                            Nombre = "Sala VIP #2 Roberto Reyes Silva"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Activo = true,
+                            Nombre = "Salon Forjadores 1",
+                            SalonPadreId = 18
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Activo = true,
+                            Nombre = "Salon Forjadores 2",
+                            SalonPadreId = 18
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Activo = true,
+                            Nombre = "Salon Forjadores 3",
+                            SalonPadreId = 18
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Activo = true,
+                            Nombre = "Sala de Juntas Cervecería Hondureña"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Activo = true,
+                            Nombre = "Edificio Los Laureles"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Activo = true,
+                            Nombre = "Emprendedores 2",
+                            SalonPadreId = 16
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Activo = true,
+                            Nombre = "SALA VIP #3"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Activo = true,
+                            Nombre = "SALA VIP #4"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Activo = true,
+                            Nombre = "Centro de Convenciones Emprendedores"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Activo = true,
+                            Nombre = "Emprendedores 1",
+                            SalonPadreId = 16
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Activo = true,
+                            Nombre = "Salon Forjadores Completo"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Activo = true,
+                            Nombre = "Emprendedores 3",
+                            SalonPadreId = 16
                         });
                 });
 
@@ -677,6 +857,16 @@ namespace Expocentro.Web.Migrations
                     b.Navigation("SolicitudEvento");
                 });
 
+            modelBuilder.Entity("Expocentro.Web.Models.Salon", b =>
+                {
+                    b.HasOne("Expocentro.Web.Models.Salon", "SalonPadre")
+                        .WithMany("Subsalones")
+                        .HasForeignKey("SalonPadreId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("SalonPadre");
+                });
+
             modelBuilder.Entity("Expocentro.Web.Models.SolicitudEvento", b =>
                 {
                     b.HasOne("Expocentro.Web.Models.Departamento", "DepartamentoCargo")
@@ -771,6 +961,11 @@ namespace Expocentro.Web.Migrations
             modelBuilder.Entity("Expocentro.Web.Models.Departamento", b =>
                 {
                     b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("Expocentro.Web.Models.Salon", b =>
+                {
+                    b.Navigation("Subsalones");
                 });
 
             modelBuilder.Entity("Expocentro.Web.Models.Servicio", b =>

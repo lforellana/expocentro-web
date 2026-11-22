@@ -171,6 +171,7 @@ public class CalendarioController : Controller
                 inicio = c.Inicio.ToString("dd/MM/yyyy hh:mm tt"),
                 fin = c.Fin.ToString("dd/MM/yyyy hh:mm tt"),
                 c.Estado,
+                salon = c.Salon == r.NombreSalon ? null : c.Salon,
                 confirmado = c.EsConfirmado
             })
         });

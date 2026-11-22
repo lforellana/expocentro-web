@@ -15,6 +15,10 @@
             {
                 <li>
                     <strong>@c.NombreEvento</strong> (@c.Codigo) ·
+                    @if (c.Salon != Model.NombreSalon)
+                    {
+                        <span>en <strong>@c.Salon</strong> ·</span>
+                    }
                     @Fechas.Rango(c.Inicio, c.Fin) ·
                     @c.Estado
                     @if (c.TipoEvento == TipoEvento.Externo)

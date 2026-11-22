@@ -148,7 +148,8 @@ function iniciarDisponibilidad(form) {
 
             const lista = d.conflictos.length
                 ? "<ul>" + d.conflictos.map(function (c) {
-                    return "<li><strong>" + escapar(c.nombreEvento) + "</strong> · " + escapar(c.inicio) + " – " + escapar(c.fin) + " · " + escapar(c.estado) + "</li>";
+                    return "<li><strong>" + escapar(c.nombreEvento) + "</strong> · " +
+                        (c.salon ? "en <strong>" + escapar(c.salon) + "</strong> · " : "") + escapar(c.inicio) + " – " + escapar(c.fin) + " · " + escapar(c.estado) + "</li>";
                 }).join("") + "</ul>"
                 : "";
 
@@ -161,7 +162,8 @@ function iniciarDisponibilidad(form) {
                     (avisos.length ? avisos.join(" ") : "<strong>Disponible con advertencia:</strong> hay solicitudes en trámite para ese horario.") +
                     lista);
             } else {
-                mostrar("disp-ok", '<i class="bi bi-check-circle me-1"></i> <strong>' + escapar(d.salon) + "</strong> está disponible en ese horario (capacidad " + d.capacidad + ").");
+                mostrar("disp-ok", '<i class="bi bi-check-circle me-1"></i> <strong>' + escapar(d.salon) + "</strong> está disponible en ese horario" +
+                    (d.capacidad ? " (capacidad " + d.capacidad + ")." : "."));
             }
         } catch (e) {
             caja.className = "disp-box";

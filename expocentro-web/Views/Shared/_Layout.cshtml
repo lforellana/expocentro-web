@@ -31,6 +31,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] · Expocentro</title>
+    <link rel="icon" type="image/png" href="~/images/expocentro-simbolo.png" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -41,12 +42,9 @@
 
     <aside class="app-sidebar" id="sidebar">
 
-        <a class="app-brand" asp-controller="Home" asp-action="Index">
-            <span class="app-brand-logo">E</span>
-            <span class="app-brand-text">
-                <strong>Expocentro</strong>
-                <small>Gestión de eventos · CCIC</small>
-            </span>
+        <a class="app-brand" asp-controller="Home" asp-action="Index" aria-label="Expocentro - Inicio">
+            <img src="~/images/logo-expocentro.png" asp-append-version="true" alt="Expocentro · Eventos y Convenciones" class="app-brand-img" />
+            <small class="app-brand-sub">Gestión de eventos · CCIC</small>
         </a>
 
         <nav class="app-nav">
@@ -90,6 +88,9 @@
                     <div class="app-nav-title">Administración</div>
                     <a class="@Activo("Usuarios")" asp-controller="Usuarios" asp-action="Index">
                         <i class="bi bi-people"></i> Usuarios
+                    </a>
+                    <a class="@Activo("Salones")" asp-controller="Salones" asp-action="Index">
+                        <i class="bi bi-door-open"></i> Salones
                     </a>
                 }
             }
@@ -142,7 +143,10 @@
             <button class="btn btn-sm" type="button" id="sidebarToggle" aria-label="Abrir menú">
                 <i class="bi bi-list fs-4"></i>
             </button>
-            <strong>Expocentro</strong>
+            <a asp-controller="Home" asp-action="Index" class="app-topbar-brand">
+                <img src="~/images/expocentro-simbolo.png" alt="" />
+                <strong>Expocentro</strong>
+            </a>
             <span class="app-avatar">@iniciales</span>
         </header>
 
