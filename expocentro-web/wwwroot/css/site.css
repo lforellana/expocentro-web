@@ -93,6 +93,23 @@ body {
     display: grid; place-items: center;
     font-weight: 700; font-size: 1.1rem;
 }
+/* Logo Expocentro (PNG gris con fondo transparente) mostrado en blanco sobre fondo oscuro */
+.app-brand { flex-direction: column; align-items: flex-start; gap: .45rem; }
+.app-brand-img {
+    width: 118px; height: auto;
+    filter: brightness(0) invert(1);
+}
+.app-brand-sub { color: #8ea3c2; font-size: .75rem; }
+.app-topbar-brand {
+    display: flex; align-items: center; gap: .5rem;
+    color: #fff; text-decoration: none;
+}
+.app-topbar-brand:hover { color: #fff; }
+.app-topbar-brand img { width: 26px; height: 26px; filter: brightness(0) invert(1); }
+.acceso-logo {
+    width: 150px; height: auto;
+    filter: brightness(0) invert(1);
+}
 .app-brand-text { line-height: 1.1; }
 .app-brand-text strong { display: block; font-size: 1.05rem; }
 .app-brand-text small { color: #8ea3c2; font-size: .75rem; }

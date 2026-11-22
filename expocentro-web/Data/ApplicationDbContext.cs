@@ -175,6 +175,20 @@ modelBuilder.Entity<HistorialEstadoSolicitud>()
     .OnDelete(DeleteBehavior.Restrict);
 
         // ============================
+        // SALONES COMBINADOS
+        // ============================
+
+        modelBuilder.Entity<Salon>(e =>
+        {
+            e.Property(x => x.Nombre).HasMaxLength(150);
+
+            e.HasOne(x => x.SalonPadre)
+                .WithMany(x => x.Subsalones)
+                .HasForeignKey(x => x.SalonPadreId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ============================
         // DATOS INICIALES
         // ============================
 
@@ -209,14 +223,26 @@ modelBuilder.Entity<HistorialEstadoSolicitud>()
                 Id = 5,
                 Nombre = "Sin asignar",
                 Activo = true
-            }
+            },
+            new Departamento { Id = 6, Nombre = "Logística", Activo = true },
+            new Departamento { Id = 7, Nombre = "Presidencia", Activo = true },
+            new Departamento { Id = 8, Nombre = "Recursos Humanos y RSE", Activo = true },
+            new Departamento { Id = 9, Nombre = "Servicios Generales", Activo = true },
+            new Departamento { Id = 10, Nombre = "Bazar del Sábado", Activo = true },
+            new Departamento { Id = 11, Nombre = "Eventos", Activo = true },
+            new Departamento { Id = 12, Nombre = "Cobros", Activo = true },
+            new Departamento { Id = 13, Nombre = "Comunicaciones y Mercadeo", Activo = true },
+            new Departamento { Id = 14, Nombre = "Compras", Activo = true },
+            new Departamento { Id = 15, Nombre = "Contabilidad", Activo = true },
+            new Departamento { Id = 16, Nombre = "Legal", Activo = true }
         );
 
+        // Capacidad null = por definir (se completa en Administración → Salones)
         modelBuilder.Entity<Salon>().HasData(
             new Salon
             {
                 Id = 1,
-                Nombre = "Centro de Convenciones Felipe Arguello",
+                Nombre = "Centro de convenciones Felipe Arguello",
                 Descripcion = "Salón para eventos y actividades institucionales.",
                 CapacidadMaxima = 500,
                 Activo = true
@@ -224,11 +250,28 @@ modelBuilder.Entity<HistorialEstadoSolicitud>()
             new Salon
             {
                 Id = 2,
-                Nombre = "Los Zorzales",
+                Nombre = "Edificio Los Zorzales",
                 Descripcion = "Espacio para reuniones y eventos.",
                 CapacidadMaxima = 150,
                 Activo = true
-            }
+            },
+            new Salon { Id = 3, Nombre = "Sala Rafael Pastor", Activo = true },
+            new Salon { Id = 4, Nombre = "Sala Mario Belot", Activo = true },
+            new Salon { Id = 5, Nombre = "Sala Alberto Smit", Activo = true },
+            new Salon { Id = 6, Nombre = "Sala VIP #1 Carlos Katan", Activo = true },
+            new Salon { Id = 7, Nombre = "Sala VIP #2 Roberto Reyes Silva", Activo = true },
+            new Salon { Id = 8, Nombre = "Salon Forjadores 1", SalonPadreId = 18, Activo = true },
+            new Salon { Id = 9, Nombre = "Salon Forjadores 2", SalonPadreId = 18, Activo = true },
+            new Salon { Id = 10, Nombre = "Salon Forjadores 3", SalonPadreId = 18, Activo = true },
+            new Salon { Id = 11, Nombre = "Sala de Juntas Cervecería Hondureña", Activo = true },
+            new Salon { Id = 12, Nombre = "Edificio Los Laureles", Activo = true },
+            new Salon { Id = 13, Nombre = "Emprendedores 2", SalonPadreId = 16, Activo = true },
+            new Salon { Id = 14, Nombre = "SALA VIP #3", Activo = true },
+            new Salon { Id = 15, Nombre = "SALA VIP #4", Activo = true },
+            new Salon { Id = 16, Nombre = "Centro de Convenciones Emprendedores", Activo = true },
+            new Salon { Id = 17, Nombre = "Emprendedores 1", SalonPadreId = 16, Activo = true },
+            new Salon { Id = 18, Nombre = "Salon Forjadores Completo", Activo = true },
+            new Salon { Id = 19, Nombre = "Emprendedores 3", SalonPadreId = 16, Activo = true }
         );
 
         modelBuilder.Entity<EstadoSolicitud>().HasData(

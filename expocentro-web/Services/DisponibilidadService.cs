@@ -11,7 +11,8 @@ public record ConflictoEvento(
     DateTime Inicio,
     DateTime Fin,
     string Estado,
-    TipoEvento TipoEvento)
+    TipoEvento TipoEvento,
+    string Salon)
 {
     public bool EsConfirmado => Estado == Estados.Aprobada;
 }
@@ -35,6 +36,8 @@ public record ResultadoDisponibilidad(
 /// Verifica choques de horario y aforo de los salones.
 /// Regla: un evento APROBADO bloquea el salón; solicitudes
 /// enviadas o en revisión generan una advertencia.
+/// Un salón combinado choca con sus partes y viceversa
+/// (ej. "Forjadores Completo" con "Forjadores 1").
 /// </summary>
 public class DisponibilidadService
 {
@@ -55,10 +58,12 @@ public class DisponibilidadService
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == salonId);
 
+        var salonesRelacionados = await SalonesRelacionadosAsync(salonId, salon?.SalonPadreId);
+
         var conflictos = await _context.SolicitudesEvento
             .AsNoTracking()
             .Where(x =>
-                x.SalonId == salonId
+                salonesRelacionados.Contains(x.SalonId)
                 && x.Id != (excluirSolicitudId ?? 0)
                 && Estados.OcupanSalon.Contains(x.Estado.Nombre)
                 && x.FechaHoraInicio < fin
@@ -71,13 +76,32 @@ public class DisponibilidadService
                 x.FechaHoraInicio,
                 x.FechaHoraFin,
                 x.Estado.Nombre,
-                x.TipoEvento))
+                x.TipoEvento,
+                x.Salon.Nombre))
             .ToListAsync();
 
         return new ResultadoDisponibilidad(
             conflictos,
             salon?.CapacidadMaxima,
             salon?.Nombre);
+    }
+
+    /// <summary>El salón, el salón combinado del que forma parte y sus partes.</summary>
+    private async Task<List<int>> SalonesRelacionadosAsync(int salonId, int? salonPadreId)
+    {
+        var ids = await _context.Salones
+            .Where(x => x.SalonPadreId == salonId)
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        ids.Add(salonId);
+
+        if (salonPadreId is int padre)
+        {
+            ids.Add(padre);
+        }
+
+        return ids;
     }
 
     /// <summary>
@@ -105,9 +129,13 @@ public class DisponibilidadService
 
         foreach (var conflicto in resultado.Confirmados)
         {
+            var donde = conflicto.Salon == resultado.NombreSalon
+                ? "El salón ya está reservado"
+                : $"El salón no está disponible: \"{conflicto.Salon}\" está reservado";
+
             modelState.AddModelError(
                 string.Empty,
-                $"El salón ya está reservado para \"{conflicto.NombreEvento}\" ({conflicto.Codigo}) " +
+                $"{donde} para \"{conflicto.NombreEvento}\" ({conflicto.Codigo}) " +
                 $"del {conflicto.Inicio:dd/MM/yyyy hh:mm tt} al {conflicto.Fin:dd/MM/yyyy hh:mm tt}.");
         }
 

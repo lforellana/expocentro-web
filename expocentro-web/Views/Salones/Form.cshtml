@@ -1,0 +1,76 @@
+@model SalonEditViewModel
+@{
+    ViewData["Title"] = Model.EsEdicion ? "Editar salón" : "Nuevo salón";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker"><a asp-action="Index" class="text-decoration-none"><i class="bi bi-arrow-left"></i> Salones</a></div>
+        <h1>@(Model.EsEdicion ? Model.Nombre : "Nuevo salón")</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 col-xl-6">
+        <form asp-action="@(Model.EsEdicion ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" class="ex-card ex-card-body">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label"></label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Descripcion" class="form-label"></label>
+                <textarea asp-for="Descripcion" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CapacidadMaxima" class="form-label"></label>
+                <input asp-for="CapacidadMaxima" class="form-control" type="number" min="1" style="max-width: 200px" />
+                <div class="form-text">Déjela vacía si aún no se conoce: no se validará el aforo.</div>
+                <span asp-validation-for="CapacidadMaxima" class="text-danger small"></span>
+            </div>
+
+            @if (Model.Subsalones.Any())
+            {
+                <div class="mb-3">
+                    <div class="form-label">Salón combinado</div>
+                    <div class="small text-muted">
+                        Combina: <strong>@string.Join(", ", Model.Subsalones)</strong>.
+                        Reservarlo bloquea esas partes, y reservar una parte lo bloquea a él.
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="mb-3">
+                    <label asp-for="SalonPadreId" class="form-label"></label>
+                    <select asp-for="SalonPadreId" asp-items="Model.SalonesPadre" class="form-select">
+                        <option value="">— Es un salón independiente —</option>
+                    </select>
+                    <div class="form-text">
+                        Ej.: "Salon Forjadores 1" forma parte de "Salon Forjadores Completo".
+                    </div>
+                    <span asp-validation-for="SalonPadreId" class="text-danger small"></span>
+                </div>
+            }
+
+            <div class="form-check form-switch mb-2">
+                <input asp-for="Activo" class="form-check-input" role="switch" />
+                <label asp-for="Activo" class="form-check-label">Activo (aparece en los formularios de reserva)</label>
+            </div>
+
+            <div class="form-acciones">
+                <a asp-action="Index" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-primary px-4">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

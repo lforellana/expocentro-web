@@ -32,7 +32,10 @@
                         <small>Cantidad de personas</small>
                         <div>
                             @Model.CantidadPersonas
-                            <span class="text-muted fw-normal small">/ capacidad @Model.Salon.CapacidadMaxima</span>
+                            @if (Model.Salon.CapacidadMaxima is int capacidad)
+                            {
+                                <span class="text-muted fw-normal small">/ capacidad @capacidad</span>
+                            }
                         </div>
                     </div>
                     <div class="col-md-6 dato">

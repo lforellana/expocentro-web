@@ -238,14 +238,6 @@ public class EventosExternosController : Controller
 
     private async Task CargarSalones(EventoExternoViewModel model)
     {
-        model.Salones = await _context.Salones
-            .Where(x => x.Activo)
-            .OrderBy(x => x.Nombre)
-            .Select(x => new SelectListItem
-            {
-                Value = x.Id.ToString(),
-                Text = $"{x.Nombre} (hasta {x.CapacidadMaxima} personas)"
-            })
-            .ToListAsync();
+        model.Salones = await _context.SalonesParaReservaAsync();
     }
 }

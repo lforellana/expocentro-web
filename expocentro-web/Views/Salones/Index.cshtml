@@ -1,0 +1,79 @@
+@model List<Salon>
+@{
+    ViewData["Title"] = "Salones";
+    var porDefinir = Model.Count(x => x.Activo && x.CapacidadMaxima == null);
+}
+
+<div class="page-header">
+    <div>
+        <h1>Salones</h1>
+        <p>Espacios que se pueden reservar. Los salones combinados bloquean a sus partes y viceversa.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Nuevo salón</a>
+</div>
+
+<partial name="_Alertas" />
+
+@if (porDefinir > 0)
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @porDefinir salón(es) activos no tienen capacidad definida; en ellos no se valida el aforo.
+    </div>
+}
+
+<section class="ex-card">
+    <div class="table-responsive">
+        <table class="table table-ex">
+            <thead>
+                <tr><th>Salón</th><th>Capacidad</th><th>Relación</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr data-href="@Url.Action("Edit", new { id = s.Id })">
+                        <td>
+                            <div class="fw-semibold">@s.Nombre</div>
+                            @if (!string.IsNullOrWhiteSpace(s.Descripcion))
+                            {
+                                <div class="small text-muted">@s.Descripcion</div>
+                            }
+                        </td>
+                        <td>
+                            @if (s.CapacidadMaxima is int c)
+                            {
+                                @($"{c:N0} personas")
+                            }
+                            else
+                            {
+                                <span class="estado estado-revision"><i class="bi bi-exclamation-circle"></i> Por definir</span>
+                            }
+                        </td>
+                        <td class="small">
+                            @if (s.SalonPadre != null)
+                            {
+                                <span class="text-muted">Parte de</span> @s.SalonPadre.Nombre
+                            }
+                            else if (s.Subsalones.Any())
+                            {
+                                <span class="text-muted">Combina</span>
+                                @string.Join(", ", s.Subsalones.OrderBy(x => x.Nombre).Select(x => x.Nombre))
+                            }
+                        </td>
+                        <td>
+                            @if (s.Activo)
+                            {
+                                <span class="estado estado-aprobada">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="estado estado-cancelada">Inactivo</span>
+                            }
+                        </td>
+                        <td class="text-end"><a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-light">Editar</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

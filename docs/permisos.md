@@ -29,6 +29,7 @@ Leyenda: ✅ permitido · 🔒 solo sobre datos propios · ❌ no permitido
 | Tomar en revisión / aprobar / rechazar | ❌ | ❌ | ✅ | ✅ |
 | Registrar y editar eventos externos | ❌ | ❌ | ✅ | ✅ |
 | Administrar usuarios (rol, departamento, activo) | ❌ | ❌ | ❌ | ✅ |
+| Administrar salones (capacidad, salones combinados, activo) | ❌ | ❌ | ❌ | ✅ |
 
 ## Reglas de propiedad del dato
 
@@ -46,7 +47,11 @@ Leyenda: ✅ permitido · 🔒 solo sobre datos propios · ❌ no permitido
   otro evento que se traslape en el mismo salón.
 - Las solicitudes **Enviadas** o **En revisión** que se traslapan solo generan advertencia;
   Coordinación decide cuál aprobar.
-- La cantidad de personas no puede superar la capacidad máxima del salón.
+- **Salones combinados:** un salón que *forma parte de* otro (ej. *Salon Forjadores 1* de
+  *Salon Forjadores Completo*) choca con el combinado, y el combinado choca con todas sus partes.
+  Las partes entre sí (Forjadores 1 y Forjadores 2) no chocan.
+- La cantidad de personas no puede superar la capacidad máxima del salón. Si la capacidad está
+  *por definir*, no se valida el aforo.
 - Los eventos **Cancelados** o **Rechazados** liberan el salón.
 
 ## Flujo de estados
