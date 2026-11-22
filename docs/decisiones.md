@@ -1,0 +1,1 @@
+Se implementaron mejoras visuales y de funcionalidades mediante Claude.
