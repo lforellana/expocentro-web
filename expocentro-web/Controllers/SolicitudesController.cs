@@ -2,6 +2,7 @@ using Expocentro.Web.Data;
 using Expocentro.Web.Models;
 using Expocentro.Web.Seguridad;
 using Expocentro.Web.Services;
+using Expocentro.Web.Services.Notificaciones;
 using Expocentro.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -21,15 +22,18 @@ public class SolicitudesController : Controller
     private readonly ApplicationDbContext _context;
     private readonly DisponibilidadService _disponibilidad;
     private readonly SolicitudEstadoService _estados;
+    private readonly NotificacionService _notificaciones;
 
     public SolicitudesController(
         ApplicationDbContext context,
         DisponibilidadService disponibilidad,
-        SolicitudEstadoService estados)
+        SolicitudEstadoService estados,
+        NotificacionService notificaciones)
     {
         _context = context;
         _disponibilidad = disponibilidad;
         _estados = estados;
+        _notificaciones = notificaciones;
     }
 
     private int UsuarioId => User.ObtenerUsuarioId();
@@ -735,6 +739,8 @@ public class SolicitudesController : Controller
 
         await _context.SaveChangesAsync();
 
+        await _notificaciones.SolicitudEnviadaAsync(solicitud.Id);
+
         TempData["Mensaje"] =
             "¡Solicitud enviada! Coordinación la revisará y verás aquí cada cambio de estado.";
 
@@ -765,6 +771,8 @@ public class SolicitudesController : Controller
             return RedirectToAction(nameof(Details), new { id });
         }
 
+        var estadoAnterior = solicitud.Estado.Nombre;
+
         await _estados.CambiarEstadoAsync(
             solicitud,
             Estados.Cancelada,
@@ -774,6 +782,9 @@ public class SolicitudesController : Controller
                 : motivo.Trim());
 
         await _context.SaveChangesAsync();
+
+        await _notificaciones.SolicitudCanceladaPorSolicitanteAsync(
+            solicitud.Id, estadoAnterior, motivo?.Trim());
 
         TempData["Mensaje"] = "La solicitud fue cancelada y el salón quedó liberado.";
 

@@ -415,8 +415,11 @@ a.stepper-item.hecho:hover { border-color: var(--ex-primary); }
     position: relative;
     border-radius: 18px;
     overflow: hidden;
-    background: var(--ex-navy) url('/images/expocentro-home.png') center / cover;
+    background: var(--ex-navy) url('/images/expocentro-home.jpg') center / cover;
     margin-bottom: 1.5rem;
+}
+@media (max-width: 768px) {
+    .hero { background-image: url('/images/expocentro-home-movil.jpg'); }
 }
 .hero::before {
     content: ""; position: absolute; inset: 0;

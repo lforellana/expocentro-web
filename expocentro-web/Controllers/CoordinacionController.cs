@@ -2,6 +2,7 @@ using Expocentro.Web.Data;
 using Expocentro.Web.Models;
 using Expocentro.Web.Seguridad;
 using Expocentro.Web.Services;
+using Expocentro.Web.Services.Notificaciones;
 using Expocentro.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,15 +21,18 @@ public class CoordinacionController : Controller
     private readonly ApplicationDbContext _context;
     private readonly DisponibilidadService _disponibilidad;
     private readonly SolicitudEstadoService _estados;
+    private readonly NotificacionService _notificaciones;
 
     public CoordinacionController(
         ApplicationDbContext context,
         DisponibilidadService disponibilidad,
-        SolicitudEstadoService estados)
+        SolicitudEstadoService estados,
+        NotificacionService notificaciones)
     {
         _context = context;
         _disponibilidad = disponibilidad;
         _estados = estados;
+        _notificaciones = notificaciones;
     }
 
     private string Actor => $"{User.ObtenerNombre()} (Coordinación)";
@@ -223,6 +227,9 @@ public class CoordinacionController : Controller
 
         await _context.SaveChangesAsync();
 
+        await _notificaciones.SolicitudResueltaAsync(
+            solicitud.Id, Estados.Aprobada, comentario?.Trim());
+
         TempData["Mensaje"] = "La solicitud fue aprobada y el salón quedó reservado.";
 
         return RedirectToAction(nameof(Details), new { id });
@@ -274,6 +281,9 @@ public class CoordinacionController : Controller
 
         await _context.SaveChangesAsync();
 
+        await _notificaciones.SolicitudResueltaAsync(
+            solicitud.Id, Estados.Rechazada, model.Motivo.Trim());
+
         TempData["Mensaje"] = "La solicitud fue rechazada.";
 
         return RedirectToAction(nameof(Details), new { id = solicitud.Id });
@@ -307,6 +317,9 @@ public class CoordinacionController : Controller
             motivo.Trim());
 
         await _context.SaveChangesAsync();
+
+        await _notificaciones.SolicitudResueltaAsync(
+            solicitud.Id, Estados.Cancelada, motivo.Trim());
 
         TempData["Mensaje"] = "El evento fue cancelado y el salón quedó liberado.";
 
