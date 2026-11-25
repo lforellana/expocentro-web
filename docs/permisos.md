@@ -9,6 +9,10 @@ Roles de la aplicación (definidos en `Seguridad/Roles.cs`):
 | **Administrador** | Responsable del sistema (TI) | *App role* `Administrador` en Entra ID **o** pantalla *Usuarios* |
 
 Los roles efectivos son la **unión** del rol guardado en la tabla `Usuarios` y los *App roles* del token de Entra ID.
+Al iniciar sesión, si el *App role* de Entra ID es mayor que el rol guardado
+(Solicitante < Coordinador < Administrador), se actualiza el rol en la tabla `Usuarios`; así, por ejemplo,
+el usuario empieza a recibir las notificaciones de Coordinación. El rol guardado **nunca se baja**
+automáticamente: si se quita el *App role* en Entra ID, hay que bajar el rol también en la pantalla *Usuarios*.
 Un usuario marcado como inactivo no puede iniciar sesión.
 
 ## Acciones por rol
