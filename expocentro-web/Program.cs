@@ -2,6 +2,7 @@ using System.Globalization;
 using Expocentro.Web.Data;
 using Expocentro.Web.Seguridad;
 using Expocentro.Web.Services;
+using Expocentro.Web.Services.Notificaciones;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,34 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<UsuarioSincronizacionService>();
 builder.Services.AddScoped<DisponibilidadService>();
 builder.Services.AddScoped<SolicitudEstadoService>();
+
+// ============================
+// NOTIFICACIONES POR CORREO
+// ============================
+// Con Notificaciones:Habilitado=true, Remitente y AzureAd:ClientSecret se envía
+// por Microsoft Graph; si no, los correos solo se registran en el log.
+
+builder.Services.Configure<NotificacionesOptions>(
+    builder.Configuration.GetSection("Notificaciones"));
+
+builder.Services.AddHttpClient("graph");
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<ColaCorreos>();
+builder.Services.AddHostedService<CorreoBackgroundService>();
+builder.Services.AddScoped<NotificacionService>();
+
+var notificaciones = builder.Configuration
+    .GetSection("Notificaciones").Get<NotificacionesOptions>() ?? new();
+
+var graphConfigurado =
+    notificaciones.Habilitado
+    && !string.IsNullOrWhiteSpace(notificaciones.Remitente)
+    && !string.IsNullOrWhiteSpace(builder.Configuration["AzureAd:ClientSecret"]);
+
+if (graphConfigurado)
+    builder.Services.AddSingleton<ICorreoEmisor, GraphCorreoEmisor>();
+else
+    builder.Services.AddSingleton<ICorreoEmisor, LogCorreoEmisor>();
 
 // ============================
 // AUTENTICACIÓN
@@ -145,6 +174,13 @@ builder.Services.AddControllersWithViews(options =>
 // ============================
 
 var app = builder.Build();
+
+if (notificaciones.Habilitado && !graphConfigurado)
+{
+    app.Logger.LogWarning(
+        "Notificaciones:Habilitado=true pero falta Notificaciones:Remitente o AzureAd:ClientSecret. " +
+        "Los correos solo se registrarán en el log.");
+}
 
 var cultura = new CultureInfo("es-HN");
 
