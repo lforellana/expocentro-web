@@ -1,0 +1,10 @@
+- Notificaciones por correo con Microsoft Graph, enviadas desde el buzón compartido eventos@ccichonduras.org.
+- Aviso a Coordinación cuando se envía o se cancela una solicitud.
+- Aviso al solicitante cuando Coordinación aprueba, rechaza o cancela, con el comentario o motivo.
+- Envío en segundo plano con reintentos; si el correo falla, la operación del usuario no se afecta.
+- Permiso de envío limitado solo al buzón eventos@ (RBAC para aplicaciones de Exchange Online).
+- Configuración del secreto de cliente y de las variables de notificaciones en Azure App Service.
+- Sincronización del rol de Entra ID con la base de datos al iniciar sesión (solo sube el rol, nunca lo baja).
+- La imagen de inicio pasó de un PNG de 27 MB a un JPG de 320 KB, con una versión móvil.
+- Documentación: guía de notificaciones (docs/notificaciones.md) y regla de roles en docs/permisos.md.
+- Pruebas en Azure: envío real de correos y asignación de rol Coordinador desde Entra ID.
