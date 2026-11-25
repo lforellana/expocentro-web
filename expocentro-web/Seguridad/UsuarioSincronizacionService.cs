@@ -90,6 +90,26 @@ public class UsuarioSincronizacionService
             }
         }
 
+        var rolesEntra = principal.Claims
+            .Where(c => c.Type == "roles" || c.Type == ClaimTypes.Role)
+            .Select(c => c.Value)
+            .Where(r => Roles.Todos.Contains(r))
+            .ToList();
+
+        // Si Entra ID asigna un rol mayor que el de la BD, se guarda en la BD
+        // (lo usan, por ejemplo, las notificaciones a Coordinación).
+        // Nunca se baja el rol: el asignado manualmente en "Usuarios" se respeta.
+        var rolEntraMayor = rolesEntra.MaxBy(Roles.Nivel);
+
+        if (rolEntraMayor != null && Roles.Nivel(rolEntraMayor) > Roles.Nivel(usuario.Rol))
+        {
+            _logger.LogInformation(
+                "Rol de {Correo} actualizado desde Entra ID: {Anterior} -> {Nuevo}",
+                usuario.Correo, usuario.Rol, rolEntraMayor);
+
+            usuario.Rol = rolEntraMayor;
+        }
+
         await _context.SaveChangesAsync();
 
         if (!usuario.Activo)
@@ -98,9 +118,6 @@ public class UsuarioSincronizacionService
         }
 
         // Roles efectivos = rol guardado en la BD + App roles de Entra ID
-        var rolesEntra = principal.Claims
-            .Where(c => c.Type == "roles" || c.Type == ClaimTypes.Role)
-            .Select(c => c.Value);
 
         var roles = rolesEntra
             .Append(usuario.Rol)

@@ -10,8 +10,12 @@ public static class Roles
     public const string Coordinador = "Coordinador";
     public const string Administrador = "Administrador";
 
+    /// <summary>Ordenados de menor a mayor nivel.</summary>
     public static readonly string[] Todos =
         { Solicitante, Coordinador, Administrador };
+
+    /// <summary>Nivel del rol (mayor = más permisos); -1 si no es un rol conocido.</summary>
+    public static int Nivel(string? rol) => Array.IndexOf(Todos, rol);
 }
 
 public static class Politicas
